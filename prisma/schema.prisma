@@ -1,0 +1,129 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String    @id @default(uuid())
+  firstName    String    @db.VarChar(50)
+  lastName     String    @db.VarChar(50)
+  email        String    @unique @db.VarChar(100)
+  password     String?   @db.VarChar(100)
+  picture      String?   @db.VarChar(100)
+  role         String?   @default("user")
+  prompt       Prompt[]
+  bot          Bot[]
+  authProvider Account[]
+  userOtp      UserOtp[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("User")
+}
+
+model Account {
+  id                Int      @id @default(autoincrement())
+  userId            String   @default(uuid())
+  provider          String   @db.VarChar(50)
+  providerAccountId String   @db.VarChar(100)
+  accessToken       String?  @db.VarChar(255)
+  refreshToken      String?  @db.VarChar(255)
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("Account")
+}
+
+model UserOtp {
+  id        Int      @id @default(autoincrement())
+  userId    String   @default(uuid())
+  otpCode   String   @db.VarChar(10)
+  isUsed    Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("UserOTP")
+}
+
+model Prompt {
+  id        String   @id @default(uuid())
+  userId    String   @default(uuid())
+  name      String   @db.VarChar(100)
+  prompt    String
+  modelName String?  @db.VarChar(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User  @relation(fields: [userId], references: [id])
+  bot  Bot[]
+
+  @@map("Prompt")
+}
+
+model LLM {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(100)
+  version   String?  @db.VarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bot Bot[]
+
+  @@map("LLM")
+}
+
+model Bot {
+  id        String   @id @default(uuid())
+  userId    String   @default(uuid())
+  promptId  String   @default(uuid())
+  llmId     Int
+  name      String   @db.VarChar(100)
+  type      String?  @db.VarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User           @relation(fields: [userId], references: [id])
+  prompt       Prompt         @relation(fields: [promptId], references: [id])
+  llm          LLM            @relation(fields: [llmId], references: [id])
+  conversation Conversation[]
+
+  @@map("BOT")
+}
+
+model Conversation {
+  id        String   @id @default(uuid())
+  botId     String   @default(uuid())
+  room      String?  @db.VarChar(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bot      Bot       @relation(fields: [botId], references: [id])
+  messages Message[]
+
+  @@map("Conversation")
+}
+
+model Message {
+  id             String   @id @default(uuid())
+  conversationId String   @default(uuid())
+  message        String
+  type           String?  @db.VarChar(50)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+
+  @@map("Message")
+}
