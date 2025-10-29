@@ -38,10 +38,10 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
     "message":"Prompt created succesfully!!",
-    "prompts":{
+    "data":{
         "name":"CS Toko Online",
         "LLM":"chatgpt 4.0",
         "prompt":"Answer customer with expresive",
@@ -51,15 +51,15 @@ data:{
 
 ```json
 // Error response
-data:{
+{
     "status":400,
-    "message":"Validation Error",
+    "error":"Validation Error",
 }
 ```
 
 ```json
 // Error response
-data:{
+{
     "status":401,
     "error":"Unathorized",
 }
@@ -82,9 +82,9 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
-    "prompts":[
+    "data":[
         {
             "name":"CS Toko prompt",
             "LLM":"chatgpt 4.0",
@@ -106,7 +106,7 @@ data:{
 ```
 ```json
 // Error response
-data:{
+{
     "status":401,
     "error":"Unathorized",
 }
@@ -126,9 +126,9 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
-    "prompt":{
+    "data":{
         "name":"CS Toko prompt",
         "LLM":"chatgpt 4.0",
         "prompt":"Answer customer with expresive",
@@ -137,7 +137,14 @@ data:{
 ```
 ```json
 // Error response
-data:{
+{
+    "status":400,
+    "error":"PromptId is Invalid",
+}
+```
+```json
+// Error response
+{
     "status":401,
     "error":"Unathorized",
 }
@@ -160,6 +167,8 @@ Request Body :
 }
 ```
 
+
+
 Request Header : 
 
 ```http
@@ -171,10 +180,10 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
-    "message":"Bot updated successufully!!",
-    "prompts":{
+    "message":"Prompt updated successufully!!",
+    "data":{
         "name":"CS Toko Prompt",
         "LLM":"chatgpt 4.0",
         "prompt":"Answer customer with expresive",
@@ -183,16 +192,23 @@ data:{
 ```
 ```json
 // Error response
-data:{
+{
     "status":401,
     "error":"Unathorized",
 }
 ```
 ```json
 // Error response
-data:{
+{
     "status":400,
-    "message":"Validation Error",
+    "error":"PromptId is Invalid",
+}
+```
+```json
+// Error response
+{
+    "status":400,
+    "error":"Validation Error",
 }
 ```
 
@@ -212,14 +228,21 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
-    "message":true,
+    "message":"Prompt deleted Successfuly",
 }
 ```
 ```json
 // Error response
-data:{
+{
+    "status":4010,
+    "error":"PromptId is Invalid",
+}
+```
+```json
+// Error response
+{
     "status":401,
     "error":"Unathorized",
 }

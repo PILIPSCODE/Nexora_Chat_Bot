@@ -3,33 +3,35 @@ import {
   Controller,
   Get,
   HttpCode,
-  HttpException,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+
+import { FacebookOauthGuard } from './guard/facebook.guard';
+import { PrismaService } from '../common/prisma.service';
+import { JwtService } from './service/jwt.service';
 import { CredentialStrategy } from './strategies/credential.strategy';
+import { GoogleOauthGuard } from './guard/google-oauth.guard';
+import type { Response, Request } from 'express';
 import {
   LoginUserRequest,
   RegisterUserRequest,
   UserResponse,
   VerificationRequest,
-} from 'src/module/model/user.model';
-import { WebResponse } from 'src/module/model/web.model';
+} from '../model/user.model';
+import { WebResponse } from '../model/web.model';
 import { CookieInterceptor } from 'src/interceptors/cookies.interceptors';
-import type { Request, Response } from 'express';
-import { JwtService } from './service/jwt.service';
-import { PrismaService } from 'src/module/common/prisma.service';
-import { GoogleOauthGuard } from './guard/google-oauth.guard';
 
-@Controller('/api/auth')
+@Controller('/auth')
 export class AuthController {
   constructor(
-    private creadentialStrategy: CredentialStrategy,
-    private jwtService: JwtService,
     private prismaService: PrismaService,
+    private jwtService: JwtService,
+    private creadentialStrategy: CredentialStrategy,
   ) {}
 
   @Post('register')
@@ -73,7 +75,7 @@ export class AuthController {
     };
   }
 
-  @Post('refresh')
+  @Get('refresh')
   @HttpCode(200)
   async refresh(@Req() req: Request, @Res() res: Response) {
     const refreshToken = req.headers['authorization'];
@@ -96,7 +98,7 @@ export class AuthController {
   @Get('google/login')
   @HttpCode(200)
   @UseGuards(GoogleOauthGuard)
-  handlelogin() {
+  handleloginGoogle() {
     return {
       message: 'Google Authentication',
       status: 200,
@@ -106,7 +108,7 @@ export class AuthController {
   @Get('google/redirect')
   @HttpCode(200)
   @UseGuards(GoogleOauthGuard)
-  async handleRedirect(@Req() req, @Res() res) {
+  async handleRedirectGoogle(@Req() req, @Res() res) {
     const response = await this.prismaService.account.findFirst({
       where: { id: req.user.id },
     });
@@ -120,6 +122,21 @@ export class AuthController {
     });
 
     // redirect ke frontend tanpa token di URL
+    return res.redirect('http://localhost:3001/dashboard');
+  }
+
+  @Get('facebook/login')
+  @UseGuards(FacebookOauthGuard)
+  async handleLoginFacebook(@Query('userId') userId: string) {
+    return {
+      message: 'Facebook Authentication',
+      status: 200,
+      userId: userId,
+    };
+  }
+  @Get('facebook/redirect')
+  @UseGuards(FacebookOauthGuard)
+  async handleRedirectFacebook(@Req() req, @Res() res) {
     return res.redirect('http://localhost:3001/dashboard');
   }
 }

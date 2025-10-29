@@ -36,10 +36,10 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
     "message":"LLM created succesfully!!",
-    "LLMs":{
+    "data":{
         "name":"GPT",
         "version":"4.0",
     },
@@ -48,15 +48,15 @@ data:{
 
 ```json
 // Error response
-data:{
+{
     "status":400,
-    "message":"Validation Error",
+    "error":"Validation Error",
 }
 ```
 
 ```json
 // Error response
-data:{
+{
     "status":401,
     "error":"Unathorized",
 }
@@ -66,7 +66,7 @@ data:{
 
 
 ## Get ALL LLM
-**Endpoint : GET /api/llms**
+**Endpoint : GET /api/llm**
 
 Request Header : 
 
@@ -79,9 +79,9 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
-    "llms":[
+    "data":[
         {
             "name":"LLama",
             "version":"3",
@@ -101,14 +101,14 @@ data:{
 ```
 ```json
 // Error response
-data:{
+{
     "status":401,
     "error":"Unathorized",
 }
 ```
 
 
-**Endpoint : GET /api/llms/llms:id**
+**Endpoint : GET /api/llm/llm:id**
 
 Request Header : 
 
@@ -121,19 +121,27 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
-    "prompt":{
+    "data":{
         "name":"GPT",
         "version":"4.0",
     }
 }
 ```
+
 ```json
 // Error response
-data:{
+{
     "status":401,
     "error":"Unathorized",
+}
+```
+```json
+// Error response
+{
+    "status":400,
+    "error":"LLmId is Invalid",
 }
 ```
 
@@ -142,7 +150,7 @@ data:{
 
 
 ## Update LLM
-**Endpoint : Patch /api/llms/llms:id**
+**Endpoint : Patch /api/llm/llm:id**
 
 Request Body :
 
@@ -164,9 +172,9 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
-    "message":"Bot updated successufully!!",
+    "message":"LLM updated successufully!!",
     "prompts":{
         "name":"GPT",
         "version":"4.0",
@@ -175,22 +183,29 @@ data:{
 ```
 ```json
 // Error response
-data:{
+{
     "status":401,
     "error":"Unathorized",
 }
 ```
 ```json
 // Error response
-data:{
+{
     "status":400,
-    "message":"Validation Error",
+    "error":"Validation Error",
+}
+```
+```json
+// Error response
+{
+    "status":400,
+    "error":"LLmId is Invalid",
 }
 ```
 
 
 ## Delete LLM
-**Endpoint : DELETE /api/llms/llms:id**
+**Endpoint : DELETE /api/llm/llm:id**
 
 
 Request Header : 
@@ -204,14 +219,21 @@ Response Body :
 
 ```json
 // Success response
-data:{
+{
     "status":200,
-    "message":true,
+    "message":"LLM deleted successfuly!!",
 }
 ```
 ```json
 // Error response
-data:{
+{
+    "status":400,
+    "error":"LLmId is Invalid",
+}
+```
+```json
+// Error response
+{
     "status":401,
     "error":"Unathorized",
 }

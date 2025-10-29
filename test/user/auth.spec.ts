@@ -26,15 +26,12 @@ describe('CredentialTest', () => {
 
     await app.init();
   });
-  afterAll(async () => {
-    test.DeleteTestUser();
-  });
 
   // Register
-  describe('POST /api/auth/register', () => {
+  describe('POST /auth/register', () => {
     it('should be rejected if request is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/auth/register')
+        .post('/auth/register')
         .send({
           firstName: '',
           lastName: '',
@@ -48,7 +45,7 @@ describe('CredentialTest', () => {
 
     it('should be accepted if request is Valid', async () => {
       const http = await request(app.getHttpServer());
-      const url = http.post('/api/auth/register');
+      const url = http.post('/auth/register');
       const response = await url.send({
         firstName: 'test',
         lastName: 'test',
@@ -64,7 +61,7 @@ describe('CredentialTest', () => {
 
     it('should be rejected if request is Email Already Exist', async () => {
       const http = await request(app.getHttpServer());
-      const url = http.post('/api/auth/register');
+      const url = http.post('/auth/register');
       const response = await url.send({
         firstName: 'test',
         lastName: 'test',
@@ -78,10 +75,10 @@ describe('CredentialTest', () => {
   });
 
   // Login
-  describe('POST /api/auth/login', () => {
+  describe('POST /auth/login', () => {
     it('should be rejected if request is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/auth/login')
+        .post('/auth/login')
         .send({
           password: '',
           email: '',
@@ -93,7 +90,7 @@ describe('CredentialTest', () => {
 
     it('should be accepted if request is Valid', async () => {
       const http = await request(app.getHttpServer());
-      const url = http.post('/api/auth/login');
+      const url = http.post('/auth/login');
       const response = await url.send({
         password: 'test123.',
         email: 'testnexoraoraora@gmail.com',
@@ -107,7 +104,7 @@ describe('CredentialTest', () => {
 
     it('should be rejected if Password Invalid', async () => {
       const http = await request(app.getHttpServer());
-      const url = http.post('/api/auth/login');
+      const url = http.post('/auth/login');
       const response = await url.send({
         password: 'test12.',
         email: 'testnexoraoraora@gmail.com',
@@ -118,7 +115,7 @@ describe('CredentialTest', () => {
     });
     it('should be rejected if Email Invalid', async () => {
       const http = await request(app.getHttpServer());
-      const url = http.post('/api/auth/login');
+      const url = http.post('/auth/login');
       const response = await url.send({
         password: 'test123.',
         email: 'test@gmal.com',
@@ -129,10 +126,10 @@ describe('CredentialTest', () => {
     });
   });
   // OTP-verification
-  describe('POST /api/auth/otp-verification', () => {
+  describe('POST /auth/otp-verification', () => {
     it('should be rejected if request is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/auth/otp-verification')
+        .post('/auth/otp-verification')
         .send({
           codeOTP: '',
           email: '',
@@ -144,7 +141,7 @@ describe('CredentialTest', () => {
 
     it('should be rejected if request codeOTP is invalid', async () => {
       const http = await request(app.getHttpServer());
-      const url = http.post('/api/auth/otp-verification');
+      const url = http.post('/auth/otp-verification');
 
       const response = await url.send({
         codeOTP: '000000',
@@ -157,7 +154,7 @@ describe('CredentialTest', () => {
 
     it('should be accepted if request is Valid', async () => {
       const http = await request(app.getHttpServer());
-      const url = http.post('/api/auth/otp-verification');
+      const url = http.post('/auth/otp-verification');
 
       const OTP = await test.GetOTPUser();
       const response = await url.send({
@@ -183,7 +180,7 @@ describe('CredentialTest', () => {
 
     it('should be rejected if request codeOTP is Expired', async () => {
       const http = await request(app.getHttpServer());
-      const url = http.post('/api/auth/otp-verification');
+      const url = http.post('/auth/otp-verification');
 
       const OTP = await test.GetOTPUser();
 
@@ -200,18 +197,18 @@ describe('CredentialTest', () => {
   });
 
   // refreshToken
-  describe('POST /api/auth/refresh', () => {
+  describe('POST /auth/refresh', () => {
     it('should be rejected if refreshToken is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/auth/refresh')
-        .set('Authorization', 'Bearer invalidtoken')
+        .get('/auth/refresh')
+        .set('Authorization', 'invalidtoken')
         .set('Content-Type', 'application/json');
       expect(response.status).toBe(400);
       expect(response.body.error).toBe('refreshToken is invalid!!');
     });
     it('should be rejected if refreshToken is Expired', async () => {
       const response = await request(app.getHttpServer())
-        .post('/api/auth/refresh')
+        .get('/auth/refresh')
         .set('Authorization', '')
         .set('Content-Type', 'application/json');
 
@@ -221,7 +218,7 @@ describe('CredentialTest', () => {
     it('should be accepted if refreshToken is valid', async () => {
       const refreshToken = await test.getRefreshToken();
       const response = await request(app.getHttpServer())
-        .post('/api/auth/refresh')
+        .get('/auth/refresh')
         .set('Authorization', String(refreshToken))
         .set('Content-Type', 'application/json');
 

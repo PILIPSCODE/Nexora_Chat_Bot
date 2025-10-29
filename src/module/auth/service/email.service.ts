@@ -7,10 +7,7 @@ import { Logger } from 'winston';
 
 @Injectable()
 export class EmailService {
-  constructor(
-    private readonly configService: ConfigService,
-    @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
-  ) {}
+  constructor(private readonly configService: ConfigService) {}
   createTransporter() {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -36,9 +33,8 @@ export class EmailService {
 
     try {
       await transporter.sendMail(options);
-      this.logger.info('Email Sent Successfuly!!');
     } catch (error) {
-      this.logger.info('Error Sending Email', error);
+      throw error;
     }
   }
 

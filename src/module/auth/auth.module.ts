@@ -1,23 +1,31 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { CredentialStrategy } from './strategies/credential.strategy';
 import { JwtService } from './service/jwt.service';
-import { EmailService } from './service/email.service';
-import { CredentialGuard } from './guard/credential.guard';
-import { GoogleStrategy } from './strategies/google.strategy';
+
+import { FacebookStrategy } from './strategies/facebook.strategy';
+import { FacebookService } from './service/facebook.service';
 import { GoogleService } from './service/google.service';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { EmailService } from './service/email.service';
+import { CredentialStrategy } from './strategies/credential.strategy';
+import { IntegrationsModule } from '../integrations/integrations.module';
+import { AuthMiddleware } from './middleware/auth.middleware';
 
 @Module({
+  imports: [IntegrationsModule],
   controllers: [AuthController],
   providers: [
-    CredentialStrategy,
     JwtService,
-    CredentialStrategy,
-    EmailService,
+    FacebookStrategy,
+    FacebookService,
     GoogleService,
     GoogleStrategy,
-    CredentialGuard,
+    EmailService,
+    CredentialStrategy,
   ],
-  exports: [CredentialGuard],
 })
-export class AuthModule {}
+export class AuthModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes('api/*');
+  }
+}

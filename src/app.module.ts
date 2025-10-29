@@ -7,7 +7,6 @@ import { LlmModule } from './module/llm/llm.module';
 import { PromptModule } from './module/prompt/prompt.module';
 import { MessageModule } from './module/message/message.module';
 import { UserModule } from './module/user/user.module';
-import { ApikeyMiddleware } from './middlewares/apikey/apikey.middleware';
 import { PassportModule } from '@nestjs/passport';
 
 @Module({
@@ -26,9 +25,3 @@ import { PassportModule } from '@nestjs/passport';
   providers: [],
 })
 export class AppModule {}
-
-// implements NestModule {
-//   configure(consumer: MiddlewareConsumer) {
-//     consumer.apply(ApikeyMiddleware).forRoutes('*');
-//   }
-// }

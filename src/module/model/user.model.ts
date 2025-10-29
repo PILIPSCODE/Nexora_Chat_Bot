@@ -44,3 +44,13 @@ export class GoogleOauth {
   scope: string[];
   email: string;
 }
+export class FacebookOauth {
+  userId: string;
+  facebookId: string;
+  name: string;
+  email?: string;
+  accessToken: string;
+  picture?: string;
+  busineesId: string;
+  wabaId: string;
+}

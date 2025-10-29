@@ -19,14 +19,12 @@ import { EmailService } from '../service/email.service';
 export class CredentialStrategy {
   constructor(
     private validationService: ValidationService,
-    @Inject(WINSTON_MODULE_PROVIDER) private logger: Logger,
     private prismaService: PrismaService,
     private jwtService: JwtService,
     private emailService: EmailService,
   ) {}
 
   async register(request: RegisterUserRequest): Promise<UserResponse> {
-    this.logger.info('new user Registered');
     const registerValid: RegisterUserRequest = this.validationService.validate(
       UserValidation.REGISTER,
       request,
@@ -54,12 +52,11 @@ export class CredentialStrategy {
 
     return {
       firstName: user.firstName,
-      lastName: user.lastName,
+      lastName: String(user.lastName),
       email: user.email,
     };
   }
   async login(request: LoginUserRequest): Promise<UserResponse> {
-    this.logger.info('user doing Login');
     const loginValid: LoginUserRequest = this.validationService.validate(
       UserValidation.LOGIN,
       request,
@@ -137,7 +134,7 @@ export class CredentialStrategy {
 
     const data = {
       firstName: checkEmail.firstName,
-      lastName: checkEmail.lastName,
+      lastName: String(checkEmail.lastName),
       email: loginValid.email,
     };
 
@@ -154,7 +151,6 @@ export class CredentialStrategy {
   }
 
   async VerificationOTP(request: VerificationRequest): Promise<UserResponse> {
-    this.logger.info('user doing verification');
     const OTPValid: VerificationRequest = this.validationService.validate(
       UserValidation.OTP,
       request,
@@ -216,7 +212,7 @@ export class CredentialStrategy {
     return {
       email: findOTP.email,
       firstName: findOTP.firstName,
-      lastName: findOTP.lastName,
+      lastName: String(findOTP.lastName),
       accessToken: AuthProvider?.accessToken || undefined,
       refreshToken: AuthProvider?.refreshToken || undefined,
     };
