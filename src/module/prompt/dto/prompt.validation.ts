@@ -13,4 +13,8 @@ export class PromptValidation {
     prompt: z.string().min(1).max(50),
     modelName: z.string().min(1).max(50),
   });
+  static readonly Pagination: ZodType = z.object({
+    page: z.string().min(1).max(50),
+    limit: z.string().min(1).max(50),
+  });
 }

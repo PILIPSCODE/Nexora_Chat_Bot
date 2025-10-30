@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { WebResponse } from '../model/web.model';
-import { LlmApi } from '../model/llm.model';
+import { GetModelLlm, LlmApi } from '../model/llm.model';
 import { LargeLanguageModel as LLM } from '@prisma/client';
 import { LlmService } from './LlmService/llm.service';
 
@@ -33,11 +33,12 @@ export class LlmController {
 
   @Get('llm')
   @HttpCode(200)
-  async getLLM(): Promise<WebResponse<LLM[]>> {
-    const data = await this.llmService.getLLm();
+  async getLLM(@Query() query: GetModelLlm): Promise<WebResponse<LLM[]>> {
+    const data = await this.llmService.getLLm(query);
     return {
-      data: data,
+      data: data.LLM,
       status: '200',
+      pagination: data.Pagination,
     };
   }
   @Get('llm/:id')

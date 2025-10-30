@@ -1,5 +1,10 @@
 import { ValidationService } from 'src/module/common/validation.service';
-import { changeLlm, LlmApi } from 'src/module/model/llm.model';
+import {
+  changeLlm,
+  GetModelLlm,
+  LlmApi,
+  PaginationResponse,
+} from 'src/module/model/llm.model';
 import { LLmValidation } from '../dto/llm.validation';
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/module/common/prisma.service';
@@ -12,9 +17,30 @@ export class LlmService {
     private prismaService: PrismaService,
   ) {}
 
-  async getLLm(): Promise<LLM[]> {
-    const data = await this.prismaService.largeLanguageModel.findMany();
-    return data;
+  async getLLm(query: GetModelLlm): Promise<PaginationResponse> {
+    const PaginationValid: GetModelLlm = this.validationService.validate(
+      LLmValidation.Pagination,
+      query,
+    );
+
+    if (!PaginationValid) throw new HttpException('Validation Error', 400);
+    const { page, limit } = PaginationValid;
+    const data = await this.prismaService.largeLanguageModel.findMany({
+      skip: (Number(page) - 1) * Number(limit),
+      take: Number(limit),
+      orderBy: { createdAt: 'desc' },
+    });
+    const totalItems = await this.prismaService.largeLanguageModel.count();
+
+    return {
+      LLM: data,
+      Pagination: {
+        page: Number(page),
+        pageSize: Number(limit),
+        totalItems: totalItems,
+        totalPages: Math.ceil(totalItems / Number(limit)),
+      },
+    };
   }
   async getLLmbyId(id: string): Promise<LLM> {
     try {

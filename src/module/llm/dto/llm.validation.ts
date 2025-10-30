@@ -10,4 +10,8 @@ export class LLmValidation {
     name: z.string().min(1).max(100),
     version: z.string().min(1).max(50),
   });
+  static readonly Pagination: ZodType = z.object({
+    page: z.string().min(1).max(50),
+    limit: z.string().min(1).max(50),
+  });
 }

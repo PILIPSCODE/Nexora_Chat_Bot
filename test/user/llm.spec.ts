@@ -28,24 +28,36 @@ describe('LLmRouteTest', () => {
   });
 
   describe('GET /api/llm', () => {
-    it('should be accepted if user authentication', async () => {
+    it('should be accepted if user authentication and request valid', async () => {
+      const accessToken = await test.getAccessToken();
+      const response = await request(app.getHttpServer())
+        .get('/api/llm?page=2&limit=2')
+        .set('Authorization', String(accessToken));
+
+      expect(response.status).toBe(200);
+      expect(response.body.data).toBeDefined();
+      expect(response.body.pagination).toBeDefined();
+    });
+    it('should be accepted if user authentication and request valid', async () => {
       const accessToken = await test.getAccessToken();
       const response = await request(app.getHttpServer())
         .get('/api/llm')
         .set('Authorization', String(accessToken));
 
-      expect(response.status).toBe(200);
-      expect(response.body.data).toBeDefined();
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBeDefined();
     });
     it('get should be rejected if unathorized', async () => {
-      const response = await request(app.getHttpServer()).get('/api/llm');
+      const response = await request(app.getHttpServer()).get(
+        '/api/llm?page=2&limit=2',
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Unauthorized!!');
     });
     it('get should be rejected if accessToken is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/llm')
+        .get('/api/llm?page=2&limit=2')
         .set('Authorization', 'Invalid Token');
 
       expect(response.status).toBe(400);
@@ -53,7 +65,7 @@ describe('LLmRouteTest', () => {
     });
     it('get should be rejected if accessToken is expired', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/llm')
+        .get('/api/llm?page=2&limit=2')
         .set(
           'Authorization',
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjZTZmODUxYi1kNjNjLTQwYzUtOWRiOS0xZTY1Mzg3NjVjZjYiLCJpYXQiOjE3NjE2NzQ4NjksImV4cCI6MTc2MTY3NTc2OX0.MS4KXwAUWNdCTeT21F9kSOoPqdrQoZ__0wSIbGtJzEY',

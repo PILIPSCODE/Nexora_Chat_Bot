@@ -10,7 +10,8 @@ Request Body :
 {
     "name":"CS Toko prompt",
     "prompt":"Ai assitent expresivve",
-    "LLM":"chatgpt 4.0",
+    "modelName":"chatgpt 4.0",
+    "userId":"awkokwokw",
 }
 ```
 
@@ -19,7 +20,8 @@ Request Body :
 |--------|--------------------------------------|----------------------------------------------|
 | name   | `Any`                                | Custom name (free text)                       |
 | prompt | `Any`                                | Custom Prompt (free text)
-| llm    | `ChatGPT-4.0`, `LLaMA`, `Gemini`, `DeepSeek`, etc. | Large Language Model option                  |
+| modelName    | `ChatGPT-4.0`, `LLaMA`, `Gemini`, `DeepSeek`, etc. | Large Language Model option                  |
+| userId    | `aidj983j93jd0ojdnvjk8` | UserId (required)|
 
 
 
@@ -43,7 +45,7 @@ Response Body :
     "message":"Prompt created succesfully!!",
     "data":{
         "name":"CS Toko Online",
-        "LLM":"chatgpt 4.0",
+        "modelName":"chatgpt 4.0",
         "prompt":"Answer customer with expresive",
     },
 }
@@ -69,13 +71,20 @@ Response Body :
 
 
 ## Get ALL Prompt
-**Endpoint : GET /api/prompts**
+**Endpoint : GET /api/prompts?page=&limit=&userId**
 
 Request Header : 
 
 ```http
 api-key: SecretKey,
 authorization: AccessToken,
+```
+Request Query : 
+
+```http
+page (required): ini misal seperti halaman berapa?,
+limit (required): dihalaman itu ada brp data?,
+userId (required): id user,
 ```
 
 Response Body : 
@@ -87,12 +96,12 @@ Response Body :
     "data":[
         {
             "name":"CS Toko prompt",
-            "LLM":"chatgpt 4.0",
+            "modelName":"chatgpt 4.0",
             "prompt":"Answer customer with expresive",
         },
         {
             "name":"CS sekolahan prompt",
-            "LLM":"chatgpt 4.0",
+            "modelName":"chatgpt 4.0",
             "prompt":"Answer customer with expresive",
         },
     ],
@@ -130,7 +139,7 @@ Response Body :
     "status":200,
     "data":{
         "name":"CS Toko prompt",
-        "LLM":"chatgpt 4.0",
+        "modelName":"chatgpt 4.0",
         "prompt":"Answer customer with expresive",
     }
 }
@@ -162,7 +171,7 @@ Request Body :
 ```json
 {
     "name":"CS Toko Online", //Optional
-    "LLM":"chatgpt 4.0",  //Optional
+    "modelName":"chatgpt 4.0",  //Optional
     "prompt":"Answer customer with expresive",  //Optional
 }
 ```
@@ -185,7 +194,7 @@ Response Body :
     "message":"Prompt updated successufully!!",
     "data":{
         "name":"CS Toko Prompt",
-        "LLM":"chatgpt 4.0",
+        "modelName":"chatgpt 4.0",
         "prompt":"Answer customer with expresive",
     },
 }

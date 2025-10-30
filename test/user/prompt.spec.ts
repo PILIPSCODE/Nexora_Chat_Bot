@@ -34,24 +34,38 @@ describe('PromptRouteTest', () => {
   });
 
   describe('GET /api/prompt', () => {
-    it('should be accepted if user authentication', async () => {
+    it('should be accepted if user authentication and request valid', async () => {
       const accessToken = await test.getAccessToken();
+      const user = await test.getUser();
       const response = await request(app.getHttpServer())
-        .get('/api/prompt')
+        .get(`/api/prompt?page=2&limit=2&userId=${user?.id}`)
         .set('Authorization', String(accessToken));
 
       expect(response.status).toBe(200);
       expect(response.body.data).toBeDefined();
+      expect(response.body.pagination).toBeDefined();
     });
+    it('should be rejected if request invalid', async () => {
+      const accessToken = await test.getAccessToken();
+      const response = await request(app.getHttpServer())
+        .get(`/api/prompt`)
+        .set('Authorization', String(accessToken));
+
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBeDefined();
+    });
+
     it('get should be rejected if unathorized', async () => {
-      const response = await request(app.getHttpServer()).get('/api/prompt');
+      const response = await request(app.getHttpServer()).get(
+        '/api/prompt?page=2&limit=2&userId=${user?.id}',
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.error).toBe('Unauthorized!!');
     });
     it('get should be rejected if accessToken is invalid', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/prompt')
+        .get('/api/prompt?page=2&limit=2&userId=${user?.id}')
         .set('Authorization', 'Invalid Token');
 
       expect(response.status).toBe(400);
@@ -59,7 +73,7 @@ describe('PromptRouteTest', () => {
     });
     it('get should be rejected if accessToken is expired', async () => {
       const response = await request(app.getHttpServer())
-        .get('/api/prompt')
+        .get('/api/prompt?page=2&limit=2&userId=${user?.id}')
         .set(
           'Authorization',
           'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjZTZmODUxYi1kNjNjLTQwYzUtOWRiOS0xZTY1Mzg3NjVjZjYiLCJpYXQiOjE3NjE2NzQ4NjksImV4cCI6MTc2MTY3NTc2OX0.MS4KXwAUWNdCTeT21F9kSOoPqdrQoZ__0wSIbGtJzEY',

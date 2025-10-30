@@ -4,6 +4,8 @@ import { PrismaService } from 'src/module/common/prisma.service';
 import { ValidationService } from 'src/module/common/validation.service';
 import {
   changePrompt,
+  GetModelPrompt,
+  PaginationResponsePrompt,
   postPrompt,
   PromptApi,
 } from 'src/module/model/prompt.model';
@@ -16,10 +18,65 @@ export class PromptService {
     private validationService: ValidationService,
   ) {}
 
-  async getPrompt(): Promise<Prompt[]> {
-    const data = await this.prismaService.prompt.findMany();
-    return data;
+  async getPromptByUserId(
+    query: GetModelPrompt,
+  ): Promise<PaginationResponsePrompt> {
+    const PromptValid: GetModelPrompt = this.validationService.validate(
+      PromptValidation.Pagination,
+      query,
+    );
+    if (!PromptValid) throw new HttpException('Validation Error', 400);
+    const { page, limit, userId } = PromptValid;
+    if (query.userId == '' || !query.userId)
+      throw new HttpException('Validation Error', 400);
+
+    const data = await this.prismaService.prompt.findMany({
+      where: {
+        userId: query.userId,
+      },
+      skip: (Number(page) - 1) * Number(limit),
+      take: Number(limit),
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const totalData = await this.prismaService.prompt.count();
+
+    return {
+      Prompt: data,
+      Pagination: {
+        page: Number(page),
+        pageSize: Number(limit),
+        totalItems: totalData,
+        totalPages: totalData / Number(limit),
+      },
+    };
   }
+  async getPrompt(query: GetModelPrompt): Promise<PaginationResponsePrompt> {
+    const PromptValid: GetModelPrompt = this.validationService.validate(
+      PromptValidation.Pagination,
+      query,
+    );
+    if (!PromptValid) throw new HttpException('Validation Error', 400);
+    const { page, limit } = PromptValid;
+
+    const data = await this.prismaService.prompt.findMany({
+      skip: (Number(page) - 1) * Number(limit),
+      take: Number(limit),
+      orderBy: { createdAt: 'desc' },
+    });
+    const totalData = await this.prismaService.prompt.count();
+
+    return {
+      Prompt: data,
+      Pagination: {
+        page: Number(page),
+        pageSize: Number(limit),
+        totalItems: totalData,
+        totalPages: totalData / Number(limit),
+      },
+    };
+  }
+
   async getPromptbyId(id: string): Promise<Prompt> {
     try {
       if (!id) throw new HttpException('Validation Error', 400);
