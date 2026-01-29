@@ -6,7 +6,11 @@ import { ConversationService } from 'src/module/conversation/service/conversatio
 import { MessageService } from 'src/module/message/service/message.service';
 import { UserAgent } from '@prisma/client';
 import { CustomerServiceWorkFlow } from '../Workflow/customerService.workflow';
-import { AiResponse, MessageResponse } from 'src/model/Rag.model';
+import {
+  AiResponse,
+  MessageResponse,
+  WrappedResponse,
+} from 'src/model/Rag.model';
 import { GatewayEventService } from 'src/module/gateway/gatewayEventEmiter';
 import { UserSubscribtionService } from 'src/module/userSubcribtion/service/userSubcribtion.service';
 
@@ -37,7 +41,12 @@ export class AiService {
     if (ReqValid.integrationType === 'testBot') {
       const res = await this.aiResponses(agent, req.message.text, agent.id);
       if (!res) return;
-      aiResponse = JSON.parse(res);
+
+      const data: AiResponse = {
+        messages: JSON.parse(res.answer),
+        tokenUsage: res.tokenUsage,
+      };
+      aiResponse = data;
       return aiResponse;
     }
 
@@ -69,7 +78,11 @@ export class AiService {
       conversation.room,
     );
     if (!res) return;
-    aiResponse = JSON.parse(res);
+    const data: AiResponse = {
+      messages: JSON.parse(res.answer),
+      tokenUsage: res.tokenUsage,
+    };
+    aiResponse = data;
 
     if (!aiResponse || aiResponse.messages.length === 0) return;
 
@@ -109,7 +122,11 @@ export class AiService {
   }
 
   async aiResponses(agent: UserAgent, message: string, room: string) {
-    const response = await this.chooseAgent(agent, message, room);
+    const response: WrappedResponse | undefined = await this.chooseAgent(
+      agent,
+      message,
+      room,
+    );
 
     if (!response) return;
 
@@ -119,7 +136,7 @@ export class AiService {
   }
 
   async chooseAgent(agent: UserAgent, message: string, room: string) {
-    let response;
+    let response: WrappedResponse | undefined;
     switch (agent.agent) {
       case 'customer-service':
         response = await this.customerServiceWorkFlow.workflow(

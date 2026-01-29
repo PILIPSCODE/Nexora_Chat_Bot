@@ -1,7 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Product, UserAgent } from '@prisma/client';
 import { StateGraph } from '@langchain/langgraph';
-import { LLMPlatform, RAGState, RAGStateAnnotation } from 'src/model/Rag.model';
+import {
+  LLMPlatform,
+  RAGState,
+  RAGStateAnnotation,
+  WrappedResponse,
+} from 'src/model/Rag.model';
 import { START, END } from '@langchain/langgraph';
 import { ChoosenLLmService } from '../service/ChoosenLLm.service';
 import { ChatMemoryRedisService } from '../ChatMemoryRedis.service';
@@ -32,7 +37,11 @@ export class CustomerServiceWorkFlow {
   // 6. Completed        (selesai)
   // 7. Cancelled        (batal)
 
-  async workflow(agent: UserAgent, question: string, sessionId: string) {
+  async workflow(
+    agent: UserAgent,
+    question: string,
+    sessionId: string,
+  ): Promise<WrappedResponse | undefined> {
     const llm = await this.choosenLLmService.chooseLLM(
       'groq',
       'llama-3.3-70b-versatile',
@@ -74,7 +83,10 @@ export class CustomerServiceWorkFlow {
       content: result.answer,
     });
 
-    return result.answer;
+    return {
+      answer: result.answer,
+      tokenUsage: result.tokenUsage,
+    };
   }
 
   async classifyIntent(state: RAGState, agent: UserAgent) {

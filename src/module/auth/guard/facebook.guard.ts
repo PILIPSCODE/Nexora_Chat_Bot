@@ -7,7 +7,7 @@ export class FacebookOauthGuard extends AuthGuard('facebook') {
 
     const userId = req.query.userId;
     if (userId) {
-      req.query.callbackURL = `http://localhost:8080/auth/facebook/redirect?userId=${userId}`;
+      req.query.callbackURL = `${process.env.FACEBOOK_CALLBACK_URL}?userId=${userId}`;
     }
 
     return (await super.canActivate(context)) as boolean;
@@ -18,7 +18,7 @@ export class FacebookOauthGuard extends AuthGuard('facebook') {
     const userId = req.query.userId;
 
     return {
-      callbackURL: `http://localhost:8080/auth/facebook/redirect?userId=${userId}`,
+      callbackURL: `${process.env.FACEBOOK_CALLBACK_URL}?userId=${userId}`,
     };
   }
 }

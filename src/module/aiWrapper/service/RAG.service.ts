@@ -52,6 +52,7 @@ export class RAGService {
         agent.userId,
         BigInt(Number(token)),
       );
+      state.tokenUsage += Number(token);
     }
 
     return res?.content;
@@ -105,6 +106,7 @@ export class RAGService {
         agent.userId,
         BigInt(Number(token)),
       );
+      state.tokenUsage += Number(token);
     }
 
     return {

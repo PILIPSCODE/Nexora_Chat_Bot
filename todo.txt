@@ -9,9 +9,10 @@
 - Tambah Dashboard *Done*
 - Tambah Cs Handle when order Trigger *Done*
 - Untuk Uji Coba Mvp (pake supabase dulu) *Done*
-- Buat Subcribtion Dumy
-- Limiting token / request
-- Untuk Umkm plan call Api groq dari frontend
+- Buat Subcribtion Dumy *Done*
+- Limiting token / request *Done*
+
+
 - Buat webSocket Generating from client
 - Buat Order Rest Api
 - Buat Invoice.
@@ -46,4 +47,17 @@ Feature
 - Admin panel
 
 other WorkFlow
+
+
+
+
+
+
+
+
+
+
+
+
+
 

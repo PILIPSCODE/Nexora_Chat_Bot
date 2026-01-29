@@ -56,6 +56,9 @@ export class userAgentSocket {
       aiResponse.messages.map(async (e) => {
         this.gatewayEventService.emitToUser(roomJoin, 'testAgent', e);
       });
+      this.gatewayEventService.emitToUser(roomJoin, 'tokenUsage', {
+        tokenUsage: aiResponse.tokenUsage,
+      });
     }
   }
 }

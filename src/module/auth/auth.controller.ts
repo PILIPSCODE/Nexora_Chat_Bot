@@ -129,7 +129,7 @@ export class AuthController {
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
-    return res.redirect(`http://localhost:3001/dashboard`);
+    return res.redirect(process.env.AUTH_REDIRECT_URL);
   }
 
   @Get('facebook/login')
@@ -162,6 +162,6 @@ export class AuthController {
       sameSite: 'none',
       maxAge: 1000 * 60 * 60 * 24 * 7,
     });
-    return res.redirect('http://localhost:3001/dashboard');
+    return res.redirect(process.env.AUTH_REDIRECT_URL);
   }
 }

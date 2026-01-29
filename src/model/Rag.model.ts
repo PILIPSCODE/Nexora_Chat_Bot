@@ -11,6 +11,7 @@ export class ChatMessage {
 
 export class AiResponse {
   messages: MessageResponse[];
+  tokenUsage: number;
 }
 
 export class MessageResponse {
@@ -25,6 +26,11 @@ export class ProductMessage {
   price?: string;
   stock?: number;
   image?: string | null;
+}
+
+export class WrappedResponse {
+  answer: string;
+  tokenUsage: number;
 }
 
 export type LLMPlatform = ChatGroq | ChatGoogleGenerativeAI | ChatOpenAI;
@@ -51,6 +57,7 @@ export const RAGStateAnnotation = Annotation.Root({
     value: (prev, next) => [...prev, ...next],
     default: () => [],
   }),
+  tokenUsage: Annotation<number>(),
 });
 
 export type RAGState = typeof RAGStateAnnotation.State;

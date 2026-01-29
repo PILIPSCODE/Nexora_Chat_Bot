@@ -15,7 +15,7 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
     super({
       clientID: String(configService.get('FACEBOOK_CLIENT_ID')),
       clientSecret: String(configService.get('FACEBOOK_CLIENT_SECRET')),
-      callbackURL: 'http://localhost:8080/auth/facebook/redirect',
+      callbackURL: String(configService.get('FACEBOOK_CALLBACK_URL')),
       scope: [
         'whatsapp_business_management',
         'whatsapp_business_messaging',

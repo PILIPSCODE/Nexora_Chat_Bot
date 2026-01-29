@@ -188,7 +188,7 @@ model Product {
 
 model Category {
   id        String   @id @default(uuid())
-  name      String   @db.VarChar(100)
+  name      String   @unique @db.VarChar(100)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -395,7 +395,7 @@ model UserIntegration {
   id     String @id @default(uuid())
   userId String
 
-  connectedAt   DateTime
+  connectedAt   DateTime @default(now())
   isconnected   Boolean
   provider      String   @db.VarChar(50)
   integrationId Int
@@ -423,7 +423,7 @@ model ContentIntegration {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([userIntegrationId, type])
   @@index([userIntegrationId])
-  @@index([userIntegrationId, type])
   @@map("ContentIntegration")
 }

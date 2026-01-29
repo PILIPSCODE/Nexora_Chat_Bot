@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "UserIntegration" ALTER COLUMN "connectedAt" SET DEFAULT CURRENT_TIMESTAMP;
