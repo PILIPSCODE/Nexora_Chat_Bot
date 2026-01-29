@@ -104,9 +104,7 @@ export class UserAgentService {
 
       if (!data) throw new HttpException('Cannot Find Agent', 403);
 
-      const apiKey = this.cryptoService.decrypt(data.apiKey);
-
-      return { ...data, apiKey: apiKey };
+      return data;
     } catch (error) {
       throw new HttpException('AgentId is Invalid', 400);
     }
@@ -129,10 +127,6 @@ export class UserAgentService {
       .catch(() => false);
 
     if (!ValidPath) throw new HttpException('File Tidak Ditemukan', 400);
-
-    const validation = await this.validationLLM(UserAgentValid, 'add');
-
-    if (!validation) throw new HttpException('Validation Error', 400);
 
     const data = await this.prismaService.userAgent.create({
       data: UserAgentValid,
@@ -159,8 +153,6 @@ export class UserAgentService {
 
     const res: UserAgentApi = {
       name: data.name,
-      llm: data.llm,
-      model: data.model,
       filePath: data.filePath,
       prompt: data.prompt,
       agent: data.agent,
@@ -182,9 +174,6 @@ export class UserAgentService {
 
       const replacePath = UserAgentValid.filePath.replace('file', 'temp');
 
-      const validation = await this.validationLLM(UserAgentValid, 'edit');
-
-      if (!validation) throw new HttpException('Validation Error', 400);
       const find = await this.getUserAgentbyId(req.id);
 
       const data = await this.prismaService.userAgent.update({
@@ -222,9 +211,7 @@ export class UserAgentService {
         name: data.name,
         agent: data.agent,
         filePath: data.filePath,
-        model: data.model,
         prompt: data.prompt,
-        llm: data.llm,
         vectorStatus:
           find.filePath === data.filePath ? data.vectoreStatus : 'Processing',
       };
@@ -274,45 +261,5 @@ export class UserAgentService {
     } catch (error) {
       throw new HttpException('AgentId is Invalid', 400);
     }
-  }
-
-  async validationLLM(req: postUserAgent, at: string) {
-    const { llm, model, apiKey } = req;
-    const models = await this.llmService.getTextLLMModels();
-
-    const llmList = ['openAI', 'groq', 'gemini'];
-    if (!llmList.includes(llm)) return false;
-
-    const availableModels = models[llm];
-    if (!availableModels.includes(model)) return false;
-
-    const userIntegrationLLm =
-      await this.prismaService.userIntegration.findFirst({
-        where: {
-          provider: llm,
-        },
-      });
-    if (!userIntegrationLLm) return false;
-
-    const list = await this.prismaService.contentIntegration.findMany({
-      where: {
-        type: 'LLM',
-        userIntegrationId: userIntegrationLLm.id,
-      },
-    });
-
-    if (at === 'edit') return true;
-    const matchApiKey = list.find((item) => {
-      const config = item.configJson as { apiKey?: string };
-      return config?.apiKey === apiKey;
-    });
-
-    if (!matchApiKey)
-      throw new HttpException(
-        `${apiKey} not match with your data integration`,
-        400,
-      );
-
-    return true;
   }
 }

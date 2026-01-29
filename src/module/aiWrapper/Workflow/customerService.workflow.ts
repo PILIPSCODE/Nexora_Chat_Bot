@@ -34,9 +34,9 @@ export class CustomerServiceWorkFlow {
 
   async workflow(agent: UserAgent, question: string, sessionId: string) {
     const llm = await this.choosenLLmService.chooseLLM(
-      agent.llm,
-      agent.model,
-      agent.apiKey,
+      'groq',
+      'llama-3.3-70b-versatile',
+      process.env.GROQ_API_KEY || '',
     );
 
     if (!llm) return;

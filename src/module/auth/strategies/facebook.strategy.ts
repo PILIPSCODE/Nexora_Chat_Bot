@@ -54,10 +54,10 @@ export class FacebookStrategy extends PassportStrategy(Strategy, 'facebook') {
       if (user.userId === 'undefined') {
         const createAccount =
           await this.facebookService.validateUserAccount(user);
-        return done(null, createAccount);
+        return createAccount;
       } else {
         const data = await this.facebookService.validateUser(user);
-        return done(null, data);
+        return data;
       }
     } catch (error) {
       console.error('OAuth validation error:', error.response?.data || error);

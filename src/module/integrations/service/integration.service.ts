@@ -76,9 +76,7 @@ export class Integrationservice {
 
     if (!findAgent) return false;
 
-    const apiKey = this.cryptoService.decrypt(findAgent.apiKey);
-
-    return { ...findAgent, apiKey: apiKey };
+    return findAgent;
   }
 
   async disableBot(req: startBot, sendUpdate: (data: any) => void) {

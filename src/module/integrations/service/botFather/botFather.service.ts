@@ -40,10 +40,7 @@ export class BotFatherService implements OnModuleInit {
         where: { id: e.agentId },
       });
       if (findAgent) {
-        this.startBot(String(e.data), e.id, {
-          ...findAgent,
-          apiKey: await this.cryptoService.decrypt(findAgent.apiKey),
-        });
+        this.startBot(String(e.data), e.id, findAgent);
       }
     });
   }

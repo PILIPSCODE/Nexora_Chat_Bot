@@ -140,14 +140,6 @@ export class ContentIntegrationService {
     config: ContentIntegrationConfig,
   ): Promise<ContentIntegrationConfig> {
     switch (config.provider) {
-      case 'gemini':
-      case 'groq':
-      case 'openRouter':
-        return {
-          ...config,
-          apiKey: this.cryptoService.encrypt(config.apiKey),
-        };
-
       case 'botFather':
         return {
           ...config,
@@ -165,14 +157,6 @@ export class ContentIntegrationService {
     const config = configJson as unknown as ContentIntegrationConfig;
 
     switch (config.provider) {
-      case 'gemini':
-      case 'groq':
-      case 'openRouter':
-        return {
-          ...config,
-          apiKey: this.cryptoService.decrypt(config.apiKey as any),
-        };
-
       case 'botFather':
         return {
           ...config,

@@ -1,6 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import {
-  ConnectedIntegrationLlm,
   ConnectedIntegrationPlatfrom,
   DashboardModel,
   QueryDashboard,
@@ -36,8 +35,6 @@ export class DashboardService {
       await this.getAllTimeRespondedMessage(query);
     const RespondedMessage = await this.RespondedMessage(query);
     const activeProduct = await this.getProductActive(query);
-    const connectedIntegrationLlm =
-      await this.getIntegrationLlmConnected(query);
     const connectedIntegrationPlatfrom =
       await this.getIntegrationPlatforConnected(query);
 
@@ -47,7 +44,6 @@ export class DashboardService {
       allTimeRespondedMessage,
       RespondedMessage,
       activeProduct,
-      connectedIntegrationLlm,
       connectedIntegrationPlatfrom,
     };
   }
@@ -124,18 +120,6 @@ export class DashboardService {
 
     return this.mapIntegrationPlatformResponse(data);
   }
-  async getIntegrationLlmConnected(
-    query: QueryDashboard,
-  ): Promise<ConnectedIntegrationLlm> {
-    const data = await this.prismaService.userIntegration.findMany({
-      where: {
-        isconnected: true,
-      },
-      include: { contentIntegrations: true },
-    });
-
-    return await this.mapIntegrationLlmResponse(data);
-  }
 
   mapIntegrationPlatformResponse(
     integrations: UserIntegrationWithContent[],
@@ -159,28 +143,6 @@ export class DashboardService {
       website: {
         setup: !!has('website')?.contentIntegrations?.length,
         isActive: !!has('website'),
-      },
-    };
-  }
-
-  mapIntegrationLlmResponse(
-    integrations: UserIntegrationWithContent[],
-  ): ConnectedIntegrationLlm {
-    const has = (provider: string) =>
-      integrations.find((i) => i.provider === provider);
-
-    return {
-      groq: {
-        setup: !!has('groq')?.contentIntegrations?.length,
-        isActive: !!has('groq'),
-      },
-      openRouter: {
-        setup: !!has('openRouter')?.contentIntegrations?.length,
-        isActive: !!has('openRouter'),
-      },
-      gemini: {
-        setup: !!has('gemini')?.contentIntegrations?.length,
-        isActive: !!has('gemini'),
       },
     };
   }

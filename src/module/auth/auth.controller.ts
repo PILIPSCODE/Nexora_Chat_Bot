@@ -113,13 +113,20 @@ export class AuthController {
     const response = await this.prismaService.account.findFirst({
       where: { id: req.user.id },
     });
-    const token = response?.accessToken;
+    const acessToken = response?.accessToken;
+    const refreshToken = response?.refreshToken;
 
-    res.cookie('access_token', token, {
+    res.cookie('access_token', acessToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: 1000 * 60 * 60 * 24,
+      maxAge: 1000 * 60 * 15,
+    });
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     });
 
     return res.redirect(`http://localhost:3001/dashboard`);
@@ -137,6 +144,24 @@ export class AuthController {
   @Get('facebook/redirect')
   @UseGuards(FacebookOauthGuard)
   async handleRedirectFacebook(@Req() req, @Res() res) {
+    const response = await this.prismaService.account.findFirst({
+      where: { id: req.user.id },
+    });
+    const acessToken = response?.accessToken;
+    const refreshToken = response?.refreshToken;
+
+    res.cookie('access_token', acessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 15,
+    });
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+    });
     return res.redirect('http://localhost:3001/dashboard');
   }
 }

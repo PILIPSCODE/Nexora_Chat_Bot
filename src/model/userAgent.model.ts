@@ -4,10 +4,8 @@ import { UserAgent, Product } from '@prisma/client';
 export class UserAgentApi {
   name: string;
   agent: string;
-  prompt: string | null;
-  llm: string;
-  model: string;
   filePath: string;
+  prompt: string | null;
   vectorStatus: string;
 }
 
@@ -16,11 +14,8 @@ export class changeUserAgent {
   name: string;
   prompt: string | null;
   agent: string;
-  llm: string;
-  model: string;
   productIds: string[];
   userId: string;
-  apiKey: string;
   filePath: string;
 }
 export class postUserAgent {
@@ -28,9 +23,6 @@ export class postUserAgent {
   name: string;
   agent: string;
   productIds: string[];
-  llm: string;
-  model: string;
-  apiKey: string;
   filePath: string;
   prompt: string | null;
 }
@@ -51,11 +43,8 @@ export class UserAgentResponseById {
   name: string;
   prompt: string | null;
   agent: string;
-  llm: string;
-  model: string;
   productIds: string[];
   userId: string;
-  apiKey: string;
   filePath: string;
 }
 

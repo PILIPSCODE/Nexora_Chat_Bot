@@ -13,11 +13,11 @@ import { AiService } from 'src/module/aiWrapper/service/aiWrapper.service';
 import { ConversationWrapper } from 'src/model/aiWrapper.model';
 import { BotService } from 'src/module/bot/service/bot.service';
 import { UserAgent } from '@prisma/client';
-import { CryptoService } from 'src/module/common/other/crypto.service';
 import { AiResponse } from 'src/model/Rag.model';
 import path from 'path';
 import { GatewayEventService } from 'src/module/gateway/gatewayEventEmiter';
 
+type StopReason = 'manual' | 'logout';
 type MessagesUpsert = BaileysEventMap['messages.upsert'];
 
 @Injectable()
@@ -28,12 +28,12 @@ export class BaileysService implements OnModuleInit {
     private aiService: AiService,
     private botService: BotService,
     private gatewayEventService: GatewayEventService,
-    private cryptoService: CryptoService,
   ) {}
 
   private bots = new Map<string, any>();
   private botCallbacks = new Map<string, (data: any) => void>();
-  private forceStop = new Map<string, boolean>();
+  private stopReason = new Map<string, StopReason>();
+
   private handlers = new Map<
     string,
     {
@@ -57,10 +57,7 @@ export class BaileysService implements OnModuleInit {
         where: { id: e.agentId },
       });
       if (findAgent) {
-        this.startBot(e.id, {
-          ...findAgent,
-          apiKey: await this.cryptoService.decrypt(findAgent.apiKey),
-        });
+        this.startBot(e.id, findAgent);
       }
     });
   }
@@ -123,28 +120,49 @@ export class BaileysService implements OnModuleInit {
           const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
 
           if (shouldReconnect) {
-            if (this.forceStop.get(botId)) {
-              console.log(
-                `[${botId}] ❌ Reconnect dibatalkan karena forceStop`,
-              );
-              this.forceStop.delete(botId);
+            const reason = this.stopReason.get(botId);
+            if (
+              statusCode === 401 ||
+              statusCode === 403 ||
+              statusCode === DisconnectReason.badSession ||
+              statusCode === DisconnectReason.loggedOut
+            ) {
+              console.log(`[${botId}] 🧨 Session invalid, deleting...`);
+
+              await this.logOut(botId);
+              this.stopReason.delete(botId);
               return;
             }
 
+            if (reason === 'manual') {
+              console.log(`[${botId}] 🛑 Reconnect dibatalkan (manual stop)`);
+              this.stopReason.delete(botId);
+              return;
+            }
+
+            console.log(`[${botId}] 🔁 Reconnecting...`);
             setTimeout(() => {
               this.startBot(botId, agent);
-            }, 5000);
+            }, 10000);
           } else {
-            this.forceStop.delete(botId);
-            let update = {
-              message: `[${botId}] Logout total, perlu scan ulang. refresh halaman untuk generate qrCode`,
-              type: 'baileys',
-              botId: botId,
-            };
+            const reason = this.stopReason.get(botId);
 
-            this.gatewayEventService.emitToUser(`bot:${botId}`, 'bot', update);
+            if (reason === 'logout') {
+              this.stopReason.delete(botId);
+              let update = {
+                message: `[${botId}] Logout total, perlu scan ulang. refresh halaman untuk generate qrCode`,
+                type: 'baileys',
+                botId: botId,
+              };
 
-            await this.logOut(botId);
+              this.gatewayEventService.emitToUser(
+                `bot:${botId}`,
+                'bot',
+                update,
+              );
+
+              await this.logOut(botId);
+            }
           }
         }
       };
@@ -177,6 +195,7 @@ export class BaileysService implements OnModuleInit {
               m.message?.extendedTextMessage?.text;
 
             if (text) {
+              console.log(text);
               let update = {
                 message: `new message from ${sender}`,
                 botId: botId,
@@ -224,7 +243,9 @@ export class BaileysService implements OnModuleInit {
               type: 'baileys',
             };
             this.gatewayEventService.emitToUser(`bot:${botId}`, 'bot', update);
+            return;
           }
+
           let update = {
             message: `Error ❌ saat memproses pesan`,
             botId: botId,
@@ -261,7 +282,7 @@ export class BaileysService implements OnModuleInit {
 
   // Function to disbale connection baileys
   async disableBot(botId: string, cb?: (data: any) => void) {
-    this.forceStop.set(botId, true);
+    this.stopReason.set(botId, 'manual');
     const sock = this.bots.get(botId);
     const handler = this.handlers.get(botId);
 
@@ -272,8 +293,7 @@ export class BaileysService implements OnModuleInit {
         sock.ev.off('messages.upsert', handler.messageUpsert);
       }
 
-      sock.ws.close();
-      sock.ev.removeAllListeners();
+      await sock.logout();
       cb?.({
         message: 'Bot Disconnected to Whatsapp',
         botId: botId,
@@ -293,6 +313,7 @@ export class BaileysService implements OnModuleInit {
 
   // Function to handle when user delete session scan
   async logOut(botId: string) {
+    this.stopReason.set(botId, 'logout');
     const botCallbacks = this.botCallbacks.get(botId);
 
     this.disableBot(botId, botCallbacks);

@@ -1,16 +1,14 @@
-import { Decimal } from '@prisma/client/runtime/library';
-
 export class SubcribtionApi {
   name: string;
-  price: Decimal;
+  price: number;
+  initialToken: string;
   durationDays: number;
-  priorityNumber: number;
 }
 
 export class ChangeSubcribtion {
-  id: number;
+  id: string;
   name: string;
-  price: Decimal;
+  price: number;
   durationDays: number;
-  priorityNumber: number;
+  initialToken: string;
 }

@@ -9,5 +9,6 @@ export class UserSubcribtionValidation {
     id: z.string().min(1).max(225),
     userId: z.string().min(1).max(225),
     subcribtionId: z.number(),
+    tokenRemain: z.string().min(1),
   });
 }

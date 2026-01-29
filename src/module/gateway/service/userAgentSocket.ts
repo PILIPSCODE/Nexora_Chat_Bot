@@ -49,15 +49,8 @@ export class userAgentSocket {
       );
       return;
     }
-    const decryptAgent: UserAgent = {
-      ...agent,
-      apiKey: await this.cryptoService.decrypt(agent.apiKey),
-    };
 
-    const aiResponse = await this.aiWrapperService.wrapper(
-      conversation,
-      decryptAgent,
-    );
+    const aiResponse = await this.aiWrapperService.wrapper(conversation, agent);
 
     if (aiResponse?.messages.length !== undefined) {
       aiResponse.messages.map(async (e) => {

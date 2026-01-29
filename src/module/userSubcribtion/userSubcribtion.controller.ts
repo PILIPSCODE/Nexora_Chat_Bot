@@ -20,7 +20,7 @@ import {
 @Controller('api')
 export class UserSubscribtionController {
   constructor(private subcribtionService: UserSubscribtionService) {}
-  @Post('/admin/userSubscribtion')
+  @Post('/userSubscribtion')
   @HttpCode(200)
   async addNewSubcribtion(
     @Body() body: UserSubcribtionApi,

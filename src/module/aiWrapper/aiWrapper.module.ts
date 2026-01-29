@@ -9,9 +9,16 @@ import { ChoosenLLmService } from './service/ChoosenLLm.service';
 import { ChatMemoryRedisService } from './ChatMemoryRedis.service';
 import { RAGService } from './service/RAG.service';
 import { CustomerModule } from '../customer/customer.module';
+import { UserSubcribtionModule } from '../userSubcribtion/userSubcribtion.module';
 
 @Module({
-  imports: [LlmModule, MessageModule, ConversationModule, CustomerModule],
+  imports: [
+    LlmModule,
+    MessageModule,
+    ConversationModule,
+    CustomerModule,
+    UserSubcribtionModule,
+  ],
   providers: [
     AiService,
     CustomerServiceWorkFlow,

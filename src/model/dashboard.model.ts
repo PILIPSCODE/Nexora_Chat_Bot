@@ -6,7 +6,6 @@ export class DashboardModel {
   allTimeRespondedMessage: number;
   RespondedMessage: RespondedMessage[];
   connectedIntegrationPlatfrom: ConnectedIntegrationPlatfrom;
-  connectedIntegrationLlm: ConnectedIntegrationLlm;
   activeProduct: Product[];
 }
 
@@ -34,20 +33,6 @@ export class ConnectedIntegrationPlatfrom {
     isActive: boolean;
   };
   website: {
-    setup: boolean;
-    isActive: boolean;
-  };
-}
-export class ConnectedIntegrationLlm {
-  groq: {
-    setup: boolean;
-    isActive: boolean;
-  };
-  gemini: {
-    setup: boolean;
-    isActive: boolean;
-  };
-  openRouter: {
     setup: boolean;
     isActive: boolean;
   };

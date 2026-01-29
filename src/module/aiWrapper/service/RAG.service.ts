@@ -8,12 +8,14 @@ import { OpenAiEmbbedingService } from 'src/module/embedding/service/openAIEmbed
 import { CustomerServiceWorkFlow } from '../Workflow/customerService.workflow';
 import { ChoosenLLmService } from './ChoosenLLm.service';
 import { SupabaseStoreService } from 'src/module/vector/service/supabaseStore.service';
+import { UserSubscribtionService } from 'src/module/userSubcribtion/service/userSubcribtion.service';
 
 @Injectable()
 export class RAGService {
   constructor(
     private readonly vectorStoreService: SupabaseStoreService, // VectorStoreService,
     private readonly embeddingService: XenovaEmbeddings,
+    private userSubcribtionService: UserSubscribtionService,
     private readonly choosenLLmService: ChoosenLLmService,
     private readonly openAIEmbeddingService: OpenAiEmbbedingService,
     private memorizeService: ChatMemoryRedisService,
@@ -38,12 +40,19 @@ export class RAGService {
     `;
 
     const llm = await this.choosenLLmService.chooseLLM(
-      agent.llm,
-      agent.model,
-      agent.apiKey,
+      'groq',
+      'llama-3.3-70b-versatile',
+      process.env.GROQ_API_KEY || '',
     );
 
     const res = await llm?.invoke(prompt);
+    if (res) {
+      const token = res.usage_metadata?.total_tokens;
+      await this.userSubcribtionService.updateToken(
+        agent.userId,
+        BigInt(Number(token)),
+      );
+    }
 
     return res?.content;
   }
@@ -89,8 +98,14 @@ export class RAGService {
       state,
     );
 
-    console.log(prompt);
     const completion = await llm.invoke(prompt);
+    if (completion) {
+      const token = completion.usage_metadata?.total_tokens;
+      await this.userSubcribtionService.updateToken(
+        agent.userId,
+        BigInt(Number(token)),
+      );
+    }
 
     return {
       answer: completion.content,

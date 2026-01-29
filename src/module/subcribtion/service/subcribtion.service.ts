@@ -12,12 +12,15 @@ export class SubscribtionService {
     private validationService: ValidationService,
   ) {}
 
-  async getAllSubscribtion(): Promise<Subscribtion[]> {
+  async getAllSubscribtion(): Promise<SubcribtionApi[]> {
     const data = await this.prismaService.subscribtion.findMany();
-    return data;
+    return data.map((item) => ({
+      ...item,
+      initialToken: item.initialToken.toString(),
+    }));
   }
 
-  async getSubscribtionbyId(id: number): Promise<Subscribtion> {
+  async getSubscribtionbyId(id: number): Promise<SubcribtionApi> {
     try {
       if (!id) throw new HttpException('Validation Error', 400);
 
@@ -29,7 +32,10 @@ export class SubscribtionService {
 
       if (!data) throw new HttpException('Cannot Find Subscribtion', 403);
 
-      return data;
+      return {
+        ...data,
+        initialToken: data.initialToken?.toString(),
+      };
     } catch (error) {
       throw new HttpException('SubscribtionId is Invalid', 400);
     }
@@ -42,13 +48,16 @@ export class SubscribtionService {
     );
 
     if (!SubscribtionValid) throw new HttpException('Validation Error', 400);
+    const initialToken = BigInt(SubscribtionValid.initialToken);
 
     const data = await this.prismaService.subscribtion.create({
-      data: SubscribtionValid,
+      data: { ...SubscribtionValid, initialToken: initialToken },
     });
 
-    const res: SubcribtionApi = data;
-    return res;
+    return {
+      ...data,
+      initialToken: data.initialToken?.toString(),
+    };
   }
 
   async editSubscribtion(req: ChangeSubcribtion) {
@@ -59,16 +68,21 @@ export class SubscribtionService {
           req,
         );
 
+      const { id, ...Subscribtion } = SubscribtionValid;
+
       if (!SubscribtionValid) throw new HttpException('Validation Error', 400);
+      const initialToken = BigInt(SubscribtionValid.initialToken);
       const data = await this.prismaService.subscribtion.update({
         where: {
-          id: req.id,
+          id: Number(id),
         },
-        data: SubscribtionValid,
+        data: { ...Subscribtion, initialToken: initialToken },
       });
 
-      const res: SubcribtionApi = data;
-      return res;
+      return {
+        ...data,
+        initialToken: data.initialToken?.toString(),
+      };
     } catch (error) {
       if (String(error).includes('invalid_type')) throw error;
       throw new HttpException('SubscribtionId is Invalid', 400);

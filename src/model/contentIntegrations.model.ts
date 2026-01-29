@@ -14,23 +14,6 @@ export class ChangeContentIntegration<T> {
   configJson: T;
 }
 
-export interface GeminiConfig {
-  provider: 'gemini';
-  apiKey: string;
-  name: string;
-}
-
-export interface GroqConfig {
-  provider: 'groq';
-  name: string;
-  apiKey: string;
-}
-export interface OpenRouterConfig {
-  provider: 'openRouter';
-  apiKey: string;
-  name: string;
-}
-
 export interface WebsiteConfig {
   provider: 'website';
   botName: string;
@@ -55,9 +38,6 @@ export function toPrismaJson<T>(value: T): Prisma.InputJsonValue {
 }
 
 export type ContentIntegrationConfig =
-  | GeminiConfig
-  | GroqConfig
-  | OpenRouterConfig
   | botFatherConfig
   | WebsiteConfig
   | WabaConfig;

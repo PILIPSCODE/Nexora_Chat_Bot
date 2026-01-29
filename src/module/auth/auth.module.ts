@@ -14,11 +14,6 @@ import { EmailService } from './service/email.service';
 import { CredentialStrategy } from './strategies/credential.strategy';
 import { IntegrationsModule } from '../integrations/integrations.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
-import {
-  Subscribtion1Middleware,
-  Subscribtion2Middleware,
-  Subscribtion3Middleware,
-} from './middleware/subcribtion.middleware';
 
 @Module({
   imports: [IntegrationsModule],
@@ -38,7 +33,5 @@ export class AuthModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(AuthMiddleware).forRoutes('api/*');
     // consumer.apply(Subscribtion1Middleware).forRoutes('api/*');
-    // consumer.apply(Subscribtion2Middleware).forRoutes('api/*');
-    // consumer.apply(Subscribtion3Middleware).forRoutes('api/*');
   }
 }

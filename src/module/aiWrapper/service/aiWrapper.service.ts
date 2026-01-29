@@ -8,6 +8,7 @@ import { UserAgent } from '@prisma/client';
 import { CustomerServiceWorkFlow } from '../Workflow/customerService.workflow';
 import { AiResponse, MessageResponse } from 'src/model/Rag.model';
 import { GatewayEventService } from 'src/module/gateway/gatewayEventEmiter';
+import { UserSubscribtionService } from 'src/module/userSubcribtion/service/userSubcribtion.service';
 
 @Injectable()
 export class AiService {
@@ -15,6 +16,7 @@ export class AiService {
     private validationService: ValidationService,
     private messageService: MessageService,
     private conversationService: ConversationService,
+    private userSubcribtionService: UserSubscribtionService,
     private gatewayEventService: GatewayEventService,
     private customerServiceWorkFlow: CustomerServiceWorkFlow,
   ) {}
@@ -27,6 +29,10 @@ export class AiService {
     let aiResponse: AiResponse = new AiResponse();
 
     if (!ReqValid) return;
+
+    const tokenCheck = await this.TokenCheck(agent.userId);
+
+    if (!tokenCheck) return;
 
     if (ReqValid.integrationType === 'testBot') {
       const res = await this.aiResponses(agent, req.message.text, agent.id);
@@ -87,6 +93,14 @@ export class AiService {
     return aiResponse;
   }
 
+  async TokenCheck(userId: string) {
+    const data = await this.userSubcribtionService.findByUserId(userId);
+
+    if (data) {
+      return data?.tokenRemain > 0;
+    }
+  }
+
   cleanJsonGemini(text: string): string {
     return text
       .replace(/```json/g, '')
@@ -100,10 +114,6 @@ export class AiService {
     if (!response) return;
 
     let res = response;
-
-    if (agent.llm === 'gemini') {
-      res = this.cleanJsonGemini(response);
-    }
 
     return res;
   }

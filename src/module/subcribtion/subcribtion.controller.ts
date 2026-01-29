@@ -32,7 +32,7 @@ export class SubscribtionController {
 
   @Get('/subscribtion')
   @HttpCode(200)
-  async getSubcribtion(): Promise<WebResponse<Subscribtion[]>> {
+  async getSubcribtion(): Promise<WebResponse<SubcribtionApi[]>> {
     const data = await this.subcribtionService.getAllSubscribtion();
     return {
       data: data,
@@ -43,7 +43,7 @@ export class SubscribtionController {
   @HttpCode(200)
   async getSubcribtionbyid(
     @Param('id') id: string,
-  ): Promise<WebResponse<Subscribtion>> {
+  ): Promise<WebResponse<SubcribtionApi>> {
     const data = await this.subcribtionService.getSubscribtionbyId(Number(id));
     return {
       data: data,
@@ -59,7 +59,7 @@ export class SubscribtionController {
   ): Promise<WebResponse<SubcribtionApi>> {
     const data = await this.subcribtionService.editSubscribtion({
       ...body,
-      id: Number(id),
+      id: id,
     });
     return {
       data: data,

@@ -21,7 +21,6 @@ import { RedisModule } from './module/redis/redis.module';
 import { UserAgentModule } from './module/UserAgent/userAgent.module';
 import { SubcribtionModule } from './module/subcribtion/subcribtion.module';
 import { UserSubcribtionModule } from './module/userSubcribtion/userSubcribtion.module';
-import { FeatureModule } from './module/feature/feature.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RateLimitGuard } from './ratelimit.guard';
 import { DashboardModule } from './module/dashboard/dashboard.module';
@@ -53,7 +52,6 @@ import { GatewayModule } from './module/gateway/gateway.module';
     DashboardModule,
     GatewayModule,
     UserSubcribtionModule,
-    FeatureModule,
   ],
   controllers: [],
   providers: [
