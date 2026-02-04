@@ -145,7 +145,22 @@ export class ContentIntegrationService {
           ...config,
           accessToken: this.cryptoService.encrypt(config.accessToken),
         };
-
+      case 'midtrans':
+        return {
+          ...config,
+          secretKey: this.cryptoService.encrypt(config.secretKey),
+          clientKey: this.cryptoService.encrypt(config.clientKey),
+        };
+      case 'xendit':
+        return {
+          ...config,
+          secretKey: this.cryptoService.encrypt(config.secretKey),
+        };
+      case 'qris':
+        return {
+          ...config,
+          apiKey: this.cryptoService.encrypt(config.apiKey),
+        };
       default:
         return config;
     }
@@ -161,6 +176,22 @@ export class ContentIntegrationService {
         return {
           ...config,
           accessToken: this.cryptoService.decrypt(config.accessToken as any),
+        };
+      case 'midtrans':
+        return {
+          ...config,
+          secretKey: this.cryptoService.decrypt(config.secretKey),
+          clientKey: this.cryptoService.decrypt(config.clientKey),
+        };
+      case 'xendit':
+        return {
+          ...config,
+          secretKey: this.cryptoService.decrypt(config.secretKey),
+        };
+      case 'qris':
+        return {
+          ...config,
+          apiKey: this.cryptoService.decrypt(config.apiKey),
         };
 
       default:

@@ -11,16 +11,19 @@
 - Untuk Uji Coba Mvp (pake supabase dulu) *Done*
 - Buat Subcribtion Dumy *Done*
 - Limiting token / request *Done*
+- Buat Order Rest Api *Done*
+- Buat Integration Website *Done*
 
-
-- Buat webSocket Generating from client
-- Buat Order Rest Api
-- Buat Invoice.
 - Buat Transaction dan implement payment gate way (setiap account)
+- Buat Invoice. 
 - Buat Check ongkir sederhana.
-- Improve Customer Service WorkFlow
-- Buat Follow Up Feature
 - Buat Ticketing Feature For A Problem
+- Improve Customer Service WorkFlow
+  - Buat Short Term Memory Last Closing W/L until Closing W/L
+  - Buat Long Term Memory save chat in Vectore
+  - Buat Crm client status only Up
+  - Integrasikan semua fitur
+- Buat Follow Up Feature
 - Buat Ai Analytics Feature
 - Pastikan Workflow Berjalan dengan lancar 
 

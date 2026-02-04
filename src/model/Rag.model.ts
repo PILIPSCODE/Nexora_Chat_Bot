@@ -10,10 +10,13 @@ export class ChatMessage {
 }
 
 export class AiResponse {
-  messages: MessageResponse[];
+  data: ListMessage;
   tokenUsage: number;
 }
 
+export class ListMessage {
+  messages: MessageResponse[];
+}
 export class MessageResponse {
   text: string;
   image?: string | null;
@@ -57,7 +60,10 @@ export const RAGStateAnnotation = Annotation.Root({
     value: (prev, next) => [...prev, ...next],
     default: () => [],
   }),
-  tokenUsage: Annotation<number>(),
+  tokenUsage: Annotation<number>({
+    value: (prev, next) => (prev ?? 0) + (next ?? 0),
+    default: () => 0,
+  }),
 });
 
 export type RAGState = typeof RAGStateAnnotation.State;

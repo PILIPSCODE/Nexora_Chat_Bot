@@ -10,9 +10,15 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
+# Konfigurasi npm agar stabil
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm config set fetch-retries 5 \
+    && npm config set fetch-retry-factor 2 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000
+
 # Install all dependencies (including devDependencies for build)
 RUN npm ci
-
 # Copy Prisma schema
 COPY prisma ./prisma
 

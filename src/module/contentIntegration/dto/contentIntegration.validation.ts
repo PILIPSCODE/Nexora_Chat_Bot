@@ -1,27 +1,11 @@
+import { domain } from 'node_modules/zod/v4/core/regexes.cjs';
 import z, { ZodType } from 'zod';
-
-const GeminiConfigSchema = z.object({
-  provider: z.literal('gemini'),
-  name: z.string().min(1),
-  apiKey: z.string().min(10),
-});
-
-const GroqConfigSchema = z.object({
-  provider: z.literal('groq'),
-  name: z.string().min(1),
-  apiKey: z.string().min(10),
-});
-const OpenRouterConfigSchema = z.object({
-  provider: z.literal('openRouter'),
-  name: z.string().min(1),
-  apiKey: z.string().min(10),
-});
 
 const WebsiteConfigSchema = z.object({
   provider: z.literal('website'),
-  botName: z.string().min(1),
-  position: z.enum(['bottom-left', 'bottom-right']),
-  theme: z.enum(['dark', 'light']),
+  img: z.string().min(1),
+  botName: z.string().min(1).max(50),
+  domain: z.string().min(1).optional(),
 });
 
 const BotFatherConfigSchema = z.object({
@@ -34,14 +18,30 @@ const WabaConfigSchema = z.object({
   numberPhoneId: z.string().min(1),
   whatsaapBussinessAccountId: z.string().min(1).max(225),
 });
+const MidtransSchema = z.object({
+  provider: z.literal('midtrans'),
+  name: z.string().min(1),
+  secretKey: z.string().min(1),
+  clientKey: z.string().min(1),
+});
+const XenditSchema = z.object({
+  provider: z.literal('xendit'),
+  name: z.string().min(1),
+  secretKey: z.string().min(1),
+});
+const InteractiveQrisSchema = z.object({
+  provider: z.literal('qris'),
+  name: z.string().min(1),
+  apiKey: z.string().min(1),
+});
 
 export const ConfigByTypeSchema = z.discriminatedUnion('provider', [
-  GeminiConfigSchema,
-  GroqConfigSchema,
-  OpenRouterConfigSchema,
   WebsiteConfigSchema,
   BotFatherConfigSchema,
   WabaConfigSchema,
+  MidtransSchema,
+  XenditSchema,
+  InteractiveQrisSchema,
 ]);
 
 export class ContentIntegrationValidation {

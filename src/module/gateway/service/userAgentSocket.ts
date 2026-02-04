@@ -52,8 +52,8 @@ export class userAgentSocket {
 
     const aiResponse = await this.aiWrapperService.wrapper(conversation, agent);
 
-    if (aiResponse?.messages.length !== undefined) {
-      aiResponse.messages.map(async (e) => {
+    if (aiResponse?.data.messages.length !== undefined) {
+      aiResponse.data.messages.map(async (e) => {
         this.gatewayEventService.emitToUser(roomJoin, 'testAgent', e);
       });
       this.gatewayEventService.emitToUser(roomJoin, 'tokenUsage', {

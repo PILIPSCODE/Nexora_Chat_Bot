@@ -7,6 +7,7 @@ import { AiService } from 'src/module/aiWrapper/service/aiWrapper.service';
 import { ConversationWrapper } from 'src/model/aiWrapper.model';
 import { IntegrationsValidation } from '../../dto/Integration.validation';
 import { WebSocketGateway } from '@nestjs/websockets';
+import { GatewayEventService } from 'src/module/gateway/gatewayEventEmiter';
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class WabaService {
@@ -14,6 +15,7 @@ export class WabaService {
     private facebookApiService: FacebookApiService,
     private validationService: ValidationService,
     private prismaService: PrismaService,
+    private gatewayEventService: GatewayEventService,
     private aiService: AiService,
   ) {}
 
@@ -36,11 +38,23 @@ export class WabaService {
 
     if (!findWabaAccount) throw new HttpException('Unauthorized', 400);
 
+    const contentIntegration =
+      await this.prismaService.contentIntegration.findFirst({
+        where: {
+          configJson: {
+            path: ['provider'],
+            equals: 'website',
+          },
+        },
+      });
+
+    const configJson: any = contentIntegration?.configJson;
+
     const bot = await this.prismaService.bot.findFirst({
       where: {
-        numberPhoneWaba: HookValid.numberPhoneId,
         type: 'whatsapp Bussiness',
         isActive: true,
+        contentIntegrationId: contentIntegration?.id,
       },
       include: {
         agent: true,
@@ -53,7 +67,7 @@ export class WabaService {
       type: 'Whatsaap Bussiness',
     };
 
-    // this.commonGateway.emitToUser(`user:${bot?.agent.userId}`, 'bot', update);
+    this.gatewayEventService.emitToUser(`bot:${bot?.id}`, 'bot', update);
     if (!bot) return;
 
     const data: ConversationWrapper = {
@@ -73,9 +87,9 @@ export class WabaService {
     const message: PostMessage = {
       type: 'text',
       message: String(aiResponse),
-      numberPhoneId: String(bot.numberPhoneWaba),
+      numberPhoneId: String(configJson.numberPhoneId),
       to: HookValid.from,
-      accessToken: String(bot.data),
+      accessToken: String(configJson.numberPhoneId),
     };
     this.facebookApiService.PostMessage(message);
   }

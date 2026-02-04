@@ -50,7 +50,7 @@ export class UserController {
     };
   }
 
-  @Post('user/password')
+  @Post('user/forgotPassword')
   @HttpCode(200)
   async updatePassword(@Body() body) {
     await this.userService.updateUserPassword(body);
@@ -66,6 +66,16 @@ export class UserController {
     return {
       status: '200',
       message: 'Verification Send!!',
+    };
+  }
+
+  @Post('user/changePassword')
+  @HttpCode(200)
+  async changePassword(@Body() body) {
+    await this.userService.changeUserPassword(body);
+    return {
+      status: '200',
+      message: 'Password updated successfuly!!',
     };
   }
 

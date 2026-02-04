@@ -1,11 +1,10 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { BotFatherService } from './botFather/botFather.service';
 import { BaileysService } from './baileys/whatsaap.service';
-import { startBot } from 'src/model/bot.model';
+import { botStatus, startBot } from 'src/model/bot.model';
 import { IntegrationsValidation } from '../dto/Integration.validation';
 import { ValidationService } from 'src/module/common/other/validation.service';
 import { PrismaService } from 'src/module/prisma/service/prisma.service';
-import { BotService } from 'src/module/bot/service/bot.service';
 import { Integration, UserAgent } from '@prisma/client';
 import { ChangeIntegration, IntegrationApi } from 'src/model/integration.model';
 import { CryptoService } from 'src/module/common/other/crypto.service';
@@ -17,7 +16,6 @@ export class Integrationservice {
     private prismaService: PrismaService,
     private baileysService: BaileysService,
     private validationService: ValidationService,
-    private botService: BotService,
     private cryptoService: CryptoService,
   ) {}
 
@@ -27,7 +25,7 @@ export class Integrationservice {
       IntegrationsValidation.StartBot,
       req,
     );
-    const { data, type, botId, agentId } = Reqvalid;
+    const { contentIntegrationId, type, botId, agentId } = Reqvalid;
     if (!Reqvalid) {
       sendUpdate({ message: 'Validation Error' });
     }
@@ -52,18 +50,33 @@ export class Integrationservice {
     if (type === 'baileys') {
       this.baileysService.startBot(botId, findAgent, sendUpdate);
     } else if (type === 'botFather') {
+      console.log(contentIntegrationId);
+      const data = await this.prismaService.contentIntegration.findUnique({
+        where: {
+          id: contentIntegrationId,
+        },
+      });
+
+      const configJson: any = data?.configJson;
+
       this.botFatherService.startBot(
-        String(data),
+        await this.cryptoService.decrypt(String(configJson?.accessToken)),
         botId,
         findAgent,
         sendUpdate,
       );
+    } else if (type === 'website') {
+      sendUpdate({
+        message: `Bot Connected To Website`,
+        data: { type: 'website', botId: req.botId },
+      });
+      await this.updateBotStatus(req, true);
     } else {
       sendUpdate({
         message: 'Bot Connected To Waba',
         data: { type: 'whatsapp Bussiness', botId: req.botId },
       });
-      await this.botService.updateBotStatus(req, true);
+      await this.updateBotStatus(req, true);
     }
   }
 
@@ -79,14 +92,14 @@ export class Integrationservice {
     return findAgent;
   }
 
-  async disableBot(req: startBot, sendUpdate: (data: any) => void) {
+  async disableBot(req: startBot, sendUpdate?: (data: any) => void) {
     const Reqvalid: startBot = this.validationService.validate(
       IntegrationsValidation.StartBot,
       req,
     );
     const { type, botId } = Reqvalid;
     if (!Reqvalid) {
-      sendUpdate({ message: 'Validation Error' });
+      sendUpdate?.({ message: 'Validation Error' });
     }
     const findBot = await this.prismaService.bot.findFirst({
       where: {
@@ -95,7 +108,7 @@ export class Integrationservice {
     });
 
     if (!findBot) {
-      sendUpdate({ message: 'Cannot Find BotID ' });
+      sendUpdate?.({ message: 'Cannot Find BotID ' });
       return;
     }
 
@@ -103,13 +116,30 @@ export class Integrationservice {
       this.baileysService.disableBot(botId, sendUpdate);
     } else if (type === 'botFather') {
       this.botFatherService.disableBot(botId, sendUpdate);
+    } else if (type === 'website') {
+      sendUpdate?.({
+        message: `Bot Disconnected To Website`,
+        data: { type: 'whatsapp Bussiness', botId: req.botId },
+      });
+      await this.updateBotStatus(req, false);
     } else {
-      sendUpdate({
+      sendUpdate?.({
         message: 'Bot Disconnected To Waba',
         data: { type: 'whatsapp Bussiness', botId: req.botId },
       });
-      await this.botService.updateBotStatus(req, false);
+      await this.updateBotStatus(req, false);
     }
+  }
+
+  async updateBotStatus(req: botStatus, status: boolean) {
+    await this.prismaService.bot.update({
+      where: {
+        id: req.botId,
+      },
+      data: {
+        isActive: status,
+      },
+    });
   }
 
   async getIntegration(): Promise<Integration[]> {

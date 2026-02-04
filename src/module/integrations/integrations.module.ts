@@ -12,19 +12,22 @@ import { AiWrapperModule } from '../aiWrapper/aiWrapper.module';
 import { Integrationservice } from './service/integration.service';
 import { BotModule } from '../bot/bot.module';
 import { IntegrationApisController } from './integrationApis.controller';
+import { WebisteGateway } from './service/webiste/website.gateway';
+import { WebsiteService } from './service/webiste/website.service';
+import { WebsiteController } from './service/webiste/website.controller';
 
 @Module({
-  imports: [
-    LlmModule,
-    MessageModule,
-    ConversationModule,
-    AiWrapperModule,
-    BotModule,
+  imports: [LlmModule, MessageModule, ConversationModule, AiWrapperModule],
+  controllers: [
+    IntegrationsController,
+    IntegrationApisController,
+    WebsiteController,
   ],
-  controllers: [IntegrationsController, IntegrationApisController],
   providers: [
     FacebookApiService,
     WabaService,
+    WebisteGateway,
+    WebsiteService,
     BotFatherService,
     BaileysService,
     Integrationservice,

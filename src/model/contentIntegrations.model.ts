@@ -17,8 +17,8 @@ export class ChangeContentIntegration<T> {
 export interface WebsiteConfig {
   provider: 'website';
   botName: string;
-  position: 'bottom-left' | 'bottom-right';
-  theme: 'dark' | 'light';
+  domain: string;
+  img: string;
 }
 export interface botFatherConfig {
   provider: 'botFather';
@@ -30,6 +30,22 @@ export interface WabaConfig {
   numberPhoneId: string;
   whatsaapBussinessAccountId: string;
 }
+export interface MidtransConfig {
+  provider: 'midtrans';
+  name: string;
+  secretKey: string;
+  clientKey: string;
+}
+export interface XenditConfig {
+  provider: 'xendit';
+  name: string;
+  secretKey: string;
+}
+export interface InteractiveQrisConfig {
+  provider: 'qris';
+  name: string;
+  apiKey: string;
+}
 
 import { Prisma } from '@prisma/client';
 
@@ -40,4 +56,7 @@ export function toPrismaJson<T>(value: T): Prisma.InputJsonValue {
 export type ContentIntegrationConfig =
   | botFatherConfig
   | WebsiteConfig
-  | WabaConfig;
+  | WabaConfig
+  | MidtransConfig
+  | XenditConfig
+  | InteractiveQrisConfig;

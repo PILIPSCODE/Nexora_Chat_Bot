@@ -41,9 +41,7 @@ export class ProductService {
     };
 
     const data = await this.prismaService.product.findMany({
-      where: {
-        userId: query.userId,
-      },
+      where: whereClause,
       skip: (Number(page) - 1) * Number(limit),
       take: Number(limit),
       orderBy: { createdAt: 'desc' },

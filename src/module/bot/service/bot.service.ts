@@ -8,19 +8,18 @@ import {
   GetModelbot,
   PaginationResponseBot,
   postBot,
+  startBot,
 } from 'src/model/bot.model';
 import { BotValidation } from '../dto/bot.validation';
 import { Bot } from '@prisma/client';
-interface IntegrationConfig {
-  accessToken?: string;
-  numberPhoneId?: string;
-}
+import { Integrationservice } from 'src/module/integrations/service/integration.service';
 
 @Injectable()
 export class BotService {
   constructor(
     private prismaService: PrismaService,
     private readonly validationService: ValidationService,
+    private integrationService: Integrationservice,
   ) {}
 
   async getBotByUserId(query: GetModelbot): Promise<PaginationResponseBot> {
@@ -110,13 +109,20 @@ export class BotService {
 
     if (!BotValid) throw new HttpException('Validation Error', 400);
 
-    const TypeValidation = await this.validationType(BotValid);
-
-    if (!TypeValidation) throw new HttpException('Validation Error', 400);
-
     const data = await this.prismaService.bot.create({
       data: BotValid,
     });
+
+    if (data.contentIntegrationId) {
+      await this.prismaService.contentIntegration.update({
+        where: {
+          id: data.contentIntegrationId,
+        },
+        data: {
+          isUsed: true,
+        },
+      });
+    }
 
     const res: Bot = data;
 
@@ -131,10 +137,6 @@ export class BotService {
       );
 
       if (!BotValid) throw new HttpException('Validation Error', 400);
-
-      const TypeValidation = await this.validationType(BotValid);
-
-      if (!TypeValidation) throw new HttpException('Validation Error', 400);
 
       const data = await this.prismaService.bot.update({
         where: {
@@ -151,50 +153,6 @@ export class BotService {
     }
   }
 
-  async validationType(req: postBot) {
-    const { userId, type, data, numberPhoneWaba } = req;
-    const userIntegration = await this.prismaService.userIntegration.findFirst({
-      where: {
-        userId: userId,
-        provider: type,
-      },
-    });
-
-    if (!userIntegration)
-      throw new HttpException(`Please activate integration ${type} first`, 400);
-    if (userIntegration?.provider === 'baileys') return true;
-
-    const contentIntegration =
-      await this.prismaService.contentIntegration.findFirst({
-        where: {
-          userIntegrationId: userIntegration.id,
-        },
-      });
-
-    if (!contentIntegration?.configJson) return false;
-
-    const validationValue = String(data ?? numberPhoneWaba ?? '');
-
-    const config: IntegrationConfig =
-      typeof contentIntegration.configJson === 'string'
-        ? JSON.parse(contentIntegration.configJson)
-        : Buffer.isBuffer(contentIntegration.configJson)
-          ? JSON.parse(contentIntegration.configJson.toString('utf-8'))
-          : (contentIntegration.configJson as IntegrationConfig);
-
-    const isValid =
-      validationValue === config.accessToken ||
-      validationValue === config.numberPhoneId;
-
-    if (!isValid) {
-      throw new HttpException(
-        `${validationValue} not match in your data integration`,
-        400,
-      );
-    }
-
-    return true;
-  }
   async deleteBot(id: string) {
     if (!id) throw new HttpException('Validation Error', 400);
 
@@ -204,22 +162,30 @@ export class BotService {
           id: id,
         },
       });
+
+      const disableBot: startBot = {
+        agentId: data.agentId,
+        contentIntegrationId: data?.contentIntegrationId || undefined,
+        botId: data.id,
+        type: data.type,
+      };
+      if (data.isActive) {
+        await this.integrationService.disableBot(disableBot);
+      }
+
+      if (data.contentIntegrationId) {
+        await this.prismaService.contentIntegration.update({
+          where: {
+            id: data.contentIntegrationId,
+          },
+          data: {
+            isUsed: false,
+          },
+        });
+      }
       return true;
     } catch (error) {
       throw new HttpException('BotId is Invalid', 400);
     }
-  }
-
-  async updateBotStatus(req: botStatus, status: boolean) {
-    await this.prismaService.bot.update({
-      where: {
-        id: req.botId,
-      },
-      data: {
-        isActive: status,
-        data: req.data,
-        numberPhoneWaba: req.numberPhoneWaba,
-      },
-    });
   }
 }

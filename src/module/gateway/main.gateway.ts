@@ -65,33 +65,23 @@ export class MainGateway
 
       const payload = await this.jwtService.verificationToken(token);
 
-      if (!payload) return;
+      if (!payload) client.disconnect();
 
-      const res = await this.prismaService.account.findFirst({
-        where: { accessToken: token },
-        include: {
-          user: true,
-        },
-      });
-
-      console.log(`Socket ${client.id} connected`);
+      console.log(`Socket ${client.id} connected `);
     } catch (error) {
+      console.log(error);
       client.disconnect();
     }
   }
 
   handleDisconnect(client: Socket) {
     console.log(`Socket ${client.id} disconnected`);
-    console.log(client.listenerCount('disconnect'));
+    // console.log(client.listenerCount('disconnect'));
     client.disconnect();
   }
 
   emitAgentStatus(userId: string, payload: any) {
     this.server.to(`user:${userId}`).emit('agent-status', payload);
-  }
-
-  emitToUser(room: string, event: string, payload: any) {
-    this.server.to(room).emit(event, payload);
   }
 
   // Integration Socket
@@ -102,7 +92,6 @@ export class MainGateway
     @MessageBody() req: startBot,
   ) {
     const roomJoin = `bot:${req.botId}`;
-    console.log(req.botId);
     client.join(roomJoin);
     await this.integrationSocket.startBot(req, roomJoin);
   }

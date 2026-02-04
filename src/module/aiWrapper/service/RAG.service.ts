@@ -110,6 +110,7 @@ export class RAGService {
     }
 
     return {
+      tokenUsage: state.tokenUsage,
       answer: completion.content,
       chatHistory: [{ role: 'assistant', content: completion.content }],
     };

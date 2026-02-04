@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/module/prisma/service/prisma.service';
 import { ValidationService } from 'src/module/common/other/validation.service';
 import {
+  ChangePasswordRequest,
   GetCurrentUser,
   PostCurrentUser,
   UpdatePassworduser,
@@ -154,6 +155,40 @@ export class UserService {
       },
       data: {
         password: hasPassword,
+      },
+    });
+  }
+  async changeUserPassword(request: ChangePasswordRequest) {
+    const requestValidation: ChangePasswordRequest =
+      this.validationService.validate(userValidation.ChangePassword, request);
+
+    if (!requestValidation) {
+      throw new HttpException('Validation Error', 400);
+    }
+
+    const checkEmail = await this.prismaService.user.findFirst({
+      where: {
+        email: requestValidation.email,
+      },
+    });
+
+    if (!checkEmail) {
+      throw new HttpException('Invalid email or password', 400);
+    }
+
+    const checkPassword = await bcrypt.compare(
+      requestValidation.oldPassword,
+      String(checkEmail.password),
+    );
+
+    if (!checkPassword) throw new HttpException('Invalid password', 400);
+
+    await this.prismaService.user.update({
+      where: {
+        id: checkEmail.id,
+      },
+      data: {
+        password: requestValidation.newPassword,
       },
     });
   }

@@ -2,8 +2,8 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { UserAgent } from '@prisma/client';
 import TelegramBot from 'node-telegram-bot-api';
 import { ConversationWrapper } from 'src/model/aiWrapper.model';
+import { botStatus } from 'src/model/bot.model';
 import { AiService } from 'src/module/aiWrapper/service/aiWrapper.service';
-import { BotService } from 'src/module/bot/service/bot.service';
 import { CryptoService } from 'src/module/common/other/crypto.service';
 import { GatewayEventService } from 'src/module/gateway/gatewayEventEmiter';
 import { PrismaService } from 'src/module/prisma/service/prisma.service';
@@ -14,7 +14,6 @@ export class BotFatherService implements OnModuleInit {
     private aiService: AiService,
     private prismaService: PrismaService,
     private gatewayEventService: GatewayEventService,
-    private botService: BotService,
     private cryptoService: CryptoService,
   ) {}
   private bots = new Map<string, TelegramBot>();
@@ -40,7 +39,19 @@ export class BotFatherService implements OnModuleInit {
         where: { id: e.agentId },
       });
       if (findAgent) {
-        this.startBot(String(e.data), e.id, findAgent);
+        const contentIntegration =
+          await this.prismaService.contentIntegration.findUnique({
+            where: {
+              id: String(e.contentIntegrationId),
+            },
+          });
+
+        const configJson: any = contentIntegration?.configJson;
+        const accessToken = await this.cryptoService.decrypt(
+          configJson.accessToken,
+        );
+
+        this.startBot(accessToken, e.id, findAgent);
       }
     });
   }
@@ -76,10 +87,7 @@ export class BotFatherService implements OnModuleInit {
 
       const Connection = () => {
         this.bots.set(botId, bot);
-        this.botService.updateBotStatus(
-          { botId: botId, data: token, type: 'botFather' },
-          true,
-        );
+        this.updateBotStatus({ botId: botId, type: 'botFather' }, true);
 
         cb?.({
           message: 'Bot Connected To Telegram',
@@ -109,8 +117,8 @@ export class BotFatherService implements OnModuleInit {
             type: 'botFather',
           };
 
-          if (aiResponse?.messages.length !== undefined) {
-            aiResponse.messages.map(async (e) => {
+          if (aiResponse?.data.messages.length !== undefined) {
+            aiResponse.data.messages.map(async (e) => {
               this.sendMessage(botId, msg.chat.id, e.text, e.type, e.image);
             });
           }
@@ -174,7 +182,7 @@ export class BotFatherService implements OnModuleInit {
       return;
     }
 
-    this.botService.updateBotStatus({ botId: botId, type: 'telegram' }, false);
+    this.updateBotStatus({ botId: botId, type: 'telegram' }, false);
     cb?.({
       message: 'Bot Disconnected to Telegram',
       botId: botId,
@@ -217,5 +225,15 @@ export class BotFatherService implements OnModuleInit {
     } else {
       await bot.sendMessage(sender, text);
     }
+  }
+  async updateBotStatus(req: botStatus, status: boolean) {
+    await this.prismaService.bot.update({
+      where: {
+        id: req.botId,
+      },
+      data: {
+        isActive: status,
+      },
+    });
   }
 }

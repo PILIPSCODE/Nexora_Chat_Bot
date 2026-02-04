@@ -164,4 +164,17 @@ export class AuthController {
     });
     return res.redirect(process.env.AUTH_REDIRECT_URL);
   }
+
+  @Post('logout')
+  async logOut(@Res() res) {
+    res
+      .status(200)
+      .cookie('access_token', '', {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: 1,
+      })
+      .json({ message: 'You Logout!!', status: '200' });
+  }
 }

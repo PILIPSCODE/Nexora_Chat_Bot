@@ -11,11 +11,11 @@ import { WhatsappAuthService } from './session.service';
 import { PrismaService } from 'src/module/prisma/service/prisma.service';
 import { AiService } from 'src/module/aiWrapper/service/aiWrapper.service';
 import { ConversationWrapper } from 'src/model/aiWrapper.model';
-import { BotService } from 'src/module/bot/service/bot.service';
 import { UserAgent } from '@prisma/client';
 import { AiResponse } from 'src/model/Rag.model';
 import path from 'path';
 import { GatewayEventService } from 'src/module/gateway/gatewayEventEmiter';
+import { botStatus } from 'src/model/bot.model';
 
 type StopReason = 'manual' | 'logout';
 type MessagesUpsert = BaileysEventMap['messages.upsert'];
@@ -26,7 +26,6 @@ export class BaileysService implements OnModuleInit {
     private whatsappAuth: WhatsappAuthService,
     private prismaService: PrismaService,
     private aiService: AiService,
-    private botService: BotService,
     private gatewayEventService: GatewayEventService,
   ) {}
 
@@ -48,7 +47,6 @@ export class BaileysService implements OnModuleInit {
       where: {
         isActive: true,
         type: 'baileys',
-        numberPhoneWaba: null,
       },
     });
 
@@ -111,10 +109,7 @@ export class BaileysService implements OnModuleInit {
             type: 'baileys',
             botId: botId,
           });
-          await this.botService.updateBotStatus(
-            { botId: botId, type: 'whatsapp' },
-            true,
-          );
+          await this.updateBotStatus({ botId: botId, type: 'whatsapp' }, true);
         } else if (connection === 'close') {
           const statusCode = (lastDisconnect?.error as any)?.output?.statusCode;
           const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
@@ -195,7 +190,6 @@ export class BaileysService implements OnModuleInit {
               m.message?.extendedTextMessage?.text;
 
             if (text) {
-              console.log(text);
               let update = {
                 message: `new message from ${sender}`,
                 botId: botId,
@@ -221,8 +215,9 @@ export class BaileysService implements OnModuleInit {
               const aiResponse: AiResponse | undefined =
                 await this.aiService.wrapper(data, agent);
 
-              if (aiResponse?.messages.length !== undefined) {
-                aiResponse.messages.map(async (e) => {
+              if (aiResponse?.data.messages.length !== undefined) {
+                aiResponse.data.messages.map(async (e) => {
+                  await this.humanTyping(sock, sender, text);
                   await this.sendMessage(
                     botId,
                     sender,
@@ -304,10 +299,7 @@ export class BaileysService implements OnModuleInit {
       this.botCallbacks.delete(botId);
       this.handlers.delete(botId);
 
-      await this.botService.updateBotStatus(
-        { botId: botId, type: 'whatsapp' },
-        false,
-      );
+      await this.updateBotStatus({ botId: botId, type: 'whatsapp' }, false);
     }
   }
 
@@ -318,10 +310,7 @@ export class BaileysService implements OnModuleInit {
 
     this.disableBot(botId, botCallbacks);
 
-    await this.botService.updateBotStatus(
-      { botId: botId, type: 'whatsapp' },
-      false,
-    );
+    await this.updateBotStatus({ botId: botId, type: 'whatsapp' }, false);
     await this.prismaService.whatsappSession.delete({
       where: {
         id: botId,
@@ -357,5 +346,26 @@ export class BaileysService implements OnModuleInit {
         text,
       });
     }
+  }
+
+  async humanTyping(sock, jid, text) {
+    const chunkSize = 25;
+
+    for (let i = 0; i < text.length; i += chunkSize) {
+      await sock.sendPresenceUpdate('composing', jid);
+      await this.delay(300 + Math.random() * 600);
+    }
+  }
+  delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  async updateBotStatus(req: botStatus, status: boolean) {
+    await this.prismaService.bot.update({
+      where: {
+        id: req.botId,
+      },
+      data: {
+        isActive: status,
+      },
+    });
   }
 }

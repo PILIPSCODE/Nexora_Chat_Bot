@@ -10,7 +10,7 @@ export class IntegrationsValidation {
   static readonly StartBot: ZodType = z.object({
     botId: z.string().min(1).max(225),
     type: z.string().min(1).max(100),
-    data: z.string().min(1).max(700).optional(),
+    contentIntegrationId: z.string().min(1).max(700).optional(),
     numberPhoneWaba: z.string().min(1).max(225).optional(),
     agentId: z.string().min(1),
   });

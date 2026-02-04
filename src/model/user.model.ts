@@ -34,6 +34,11 @@ export class VerificationRequest {
   codeOTP: string;
   email: string;
 }
+export class ChangePasswordRequest {
+  oldPassword: string;
+  newPassword: string;
+  email: string;
+}
 
 export class GoogleOauth {
   id: string;

@@ -4,8 +4,7 @@ import { Bot } from '@prisma/client';
 export class BotApi {
   userId: string;
   agentId: string;
-  data: string | null;
-  numberPhoneWaba: string | null;
+  contentIntegrationId: string | null;
   botName: string;
 }
 
@@ -14,23 +13,26 @@ export class changeBot {
   agentId: string;
   type: string;
   userId: string;
-  data: string | null;
-  numberPhoneWaba: string | null;
+  integrationId: string | null;
   botName: string;
 }
 export class startBot {
   botId: string;
   type: string;
   agentId: string;
-  data?: string;
-  numberPhoneWaba?: string;
+  contentIntegrationId?: string;
+}
+
+export class ChatWebsite {
+  botId: string;
+  sid: string;
+  message: string;
 }
 
 export class botStatus {
   botId: string;
   type: string;
-  data?: string;
-  numberPhoneWaba?: string;
+  contentIntegrationId?: string;
 }
 
 export class ResponseBot {
@@ -44,8 +46,7 @@ export class postBot {
   agentId: string;
   botName: string;
   type: string;
-  data: string | null;
-  numberPhoneWaba: string | null;
+  contentIntegrationId?: string | null;
 }
 
 export class GetModelbot {

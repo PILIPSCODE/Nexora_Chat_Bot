@@ -161,6 +161,7 @@ async function main() {
       configJson: {
         botName: 'Customer_layanan_bot',
         provider: 'botFather',
+        isUsed: false,
         accessToken:
           '00fa2b49a110d34b30a70feb5a939c4b:a9f1cd92283b9dcca626393bb869790d4bdaa629de54d38a61ca9bdb1ade28786fd4ffbff4955d6ea652ebc7915cb727',
       },
@@ -171,6 +172,7 @@ async function main() {
       configJson: {
         botName: 'Customer_layanan_bot',
         provider: 'botFather',
+        isUsed: false,
         accessToken:
           '00fa2b49a110d34b30a70feb5a939c4b:a9f1cd92283b9dcca626393bb869790d4bdaa629de54d38a61ca9bdb1ade28786fd4ffbff4955d6ea652ebc7915cb727',
       },

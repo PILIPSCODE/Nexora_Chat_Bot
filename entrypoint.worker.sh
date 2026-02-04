@@ -9,4 +9,4 @@ echo "📦 Running Prisma migrations..."
 npx prisma migrate deploy
 
 echo "🚀 Starting worker process..."
-exec node dist/worker.js
+exec node dist/src/worker.js

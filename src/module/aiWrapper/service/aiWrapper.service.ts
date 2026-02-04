@@ -43,7 +43,7 @@ export class AiService {
       if (!res) return;
 
       const data: AiResponse = {
-        messages: JSON.parse(res.answer),
+        data: JSON.parse(res.answer),
         tokenUsage: res.tokenUsage,
       };
       aiResponse = data;
@@ -77,16 +77,19 @@ export class AiService {
       req.message.text,
       conversation.room,
     );
+
     if (!res) return;
+
     const data: AiResponse = {
-      messages: JSON.parse(res.answer),
+      data: JSON.parse(res.answer),
       tokenUsage: res.tokenUsage,
     };
+    console.log(data);
     aiResponse = data;
 
-    if (!aiResponse || aiResponse.messages.length === 0) return;
+    if (!aiResponse || aiResponse.data.messages.length === 0) return;
 
-    aiResponse.messages.map(async (e) => {
+    aiResponse.data?.messages.map(async (e) => {
       const dataBot = await this.messageService.addNewMessage({
         role: 'Bot',
         sentiment: 'netral',
