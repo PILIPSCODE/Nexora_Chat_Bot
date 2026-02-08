@@ -16,13 +16,14 @@ import { PrismaService } from 'src/module/prisma/service/prisma.service';
 import { RAGService } from '../service/RAG.service';
 import { OpenAiEmbbedingService } from 'src/module/embedding/service/openAIEmbedding.service';
 import { SupabaseStoreService } from 'src/module/vector/service/supabaseStore.service';
+import { PostgreStoreService } from 'src/module/vector/service/postgreStore.service';
 
 @Injectable()
 export class CustomerServiceWorkFlow {
   constructor(
     private readonly choosenLLmService: ChoosenLLmService,
     private ragService: RAGService,
-    private readonly vectorStoreService: SupabaseStoreService, // VectorStoreService,
+    private readonly vectorStoreService:PostgreStoreService, // VectorStoreService, SupabaseStoreService
     private readonly embeddingService: XenovaEmbeddings,
     private readonly openAiEmbbedingService: OpenAiEmbbedingService,
     private prismaService: PrismaService,

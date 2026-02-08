@@ -4,11 +4,12 @@ import { PrismaService } from 'src/module/prisma/service/prisma.service';
 import { VectorStoreService } from 'src/module/vector/service/vectoreStore.service';
 import { UserAgentEventPublisher } from '../redisPublisher/userAgentEventPublisher';
 import { SupabaseStoreService } from 'src/module/vector/service/supabaseStore.service';
+import { PostgreStoreService } from 'src/module/vector/service/postgreStore.service';
 
 @Injectable()
 export class UserAgentVectorIngestionService {
   constructor(
-    private readonly vectorStore: SupabaseStoreService, // VectorStoreService,
+    private readonly vectorStore: PostgreStoreService, // VectorStoreService,SupabaseStoreService
     private readonly prismaService: PrismaService,
     private userAgentEventPublisher: UserAgentEventPublisher,
   ) {}

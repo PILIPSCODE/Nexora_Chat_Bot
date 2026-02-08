@@ -5,7 +5,7 @@ services:
   # Database - PostgreSQL
   # ==================================
   postgres:
-    image: postgres:14.20-trixie
+    image: pgvector/pgvector:pg16
     container_name: chatbot-postgres
     restart: unless-stopped
     environment:
