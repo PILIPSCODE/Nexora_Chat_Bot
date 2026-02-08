@@ -1,4 +1,4 @@
-- Make Content Integration Api **Done**
+-  Make Content Integration Api **Done**
 - Make Save File Upload (Image) in dir Project **Done**
 - Try Qdrant Vectore Store Use Docker **Done**
 - Make WorkFlow Customer Service. **Done**
@@ -25,12 +25,8 @@
   - Integrasikan semua fitur
 - Buat Follow Up Feature
 - Buat Ai Analytics Feature
+- Buat Feature broadcast limit 100 cast sehari.
 - Pastikan Workflow Berjalan dengan lancar 
-
-
-
-
-
 
 
 
@@ -49,18 +45,9 @@ Feature
 - ai Analytics
 - Admin panel
 
-other WorkFlow
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+next Feature
+- handle image, voice message
+- response voice message.
+- other WorkFlow
